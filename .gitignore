@@ -1,3 +1,9 @@
 .venv/*
 
 *~lock*
+
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.gz
