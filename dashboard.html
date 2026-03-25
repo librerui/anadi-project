@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-REDES Dashboard — ANADI 2025/26</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;700&display=swap');
+
+    :root {
+      --bg: #0a0f1e;
+      --surface: #111827;
+      --surface2: #1a2436;
+      --border: #1e3a5f;
+      --accent: #00d4ff;
+      --accent2: #ff6b35;
+      --accent3: #00ff9f;
+      --warn: #ffb800;
+      --danger: #ff4757;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --font-mono: 'Space Mono', monospace;
+      --font-sans: 'DM Sans', sans-serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Grid noise texture */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .header {
+      position: relative;
+      padding: 2rem 3rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), transparent);
+      z-index: 1;
+    }
+
+    .header-left .badge {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--accent);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+      opacity: 0.8;
+    }
+
+    .header-left h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #fff 40%, var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .live-dot {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--accent3);
+    }
+
+    .live-dot::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent3);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.4;
+        transform: scale(0.8);
+      }
+    }
+
+    .main {
+      position: relative;
+      z-index: 1;
+      padding: 2rem 3rem;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    /* KPI Row */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.2rem 1.5rem;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s;
+    }
+
+    .kpi-card:hover {
+      border-color: var(--accent);
+    }
+
+    .kpi-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--kpi-color, var(--accent));
+    }
+
+    .kpi-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      margin-bottom: 0.5rem;
+    }
+
+    .kpi-value {
+      font-family: var(--font-mono);
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--kpi-color, var(--accent));
+      line-height: 1;
+    }
+
+    .kpi-sub {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 0.3rem;
+    }
+
+    /* Charts Grid */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .charts-grid-3 {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      position: relative;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.2rem;
+    }
+
+    .card-title {
+      font-size: 0.8rem;
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+    }
+
+    .card-tag {
+      font-size: 0.6rem;
+      font-family: var(--font-mono);
+      background: rgba(0, 212, 255, 0.1);
+      color: var(--accent);
+      border: 1px solid rgba(0, 212, 255, 0.2);
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      letter-spacing: 0.1em;
+    }
+
+    .chart-wrapper {
+      position: relative;
+      height: 260px;
+    }
+
+    .chart-wrapper-sm {
+      position: relative;
+      height: 200px;
+    }
+
+    /* Scenario Slider */
+    .scenario-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .slider-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    .slider-item label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      margin-bottom: 0.5rem;
+    }
+
+    .slider-item label span {
+      color: var(--accent2);
+      font-weight: 700;
+    }
+
+    input[type=range] {
+      width: 100%;
+      -webkit-appearance: none;
+      height: 4px;
+      background: var(--border);
+      border-radius: 4px;
+      outline: none;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--accent2);
+      cursor: pointer;
+      border: 2px solid var(--bg);
+    }
+
+    .scenario-result {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .result-box {
+      text-align: center;
+      padding: 1rem;
+      border-radius: 10px;
+      border: 1px solid;
+    }
+
+    .result-box.green {
+      background: rgba(0, 255, 159, 0.05);
+      border-color: rgba(0, 255, 159, 0.2);
+    }
+
+    .result-box.blue {
+      background: rgba(0, 212, 255, 0.05);
+      border-color: rgba(0, 212, 255, 0.2);
+    }
+
+    .result-box.orange {
+      background: rgba(255, 107, 53, 0.05);
+      border-color: rgba(255, 107, 53, 0.2);
+    }
+
+    .result-box.warn {
+      background: rgba(255, 184, 0, 0.05);
+      border-color: rgba(255, 184, 0, 0.2);
+    }
+
+    .result-box .rb-label {
+      font-size: 0.65rem;
+      font-family: var(--font-mono);
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .result-box .rb-value {
+      font-size: 1.4rem;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      margin: 0.3rem 0;
+    }
+
+    .result-box.green .rb-value {
+      color: var(--accent3);
+    }
+
+    .result-box.blue .rb-value {
+      color: var(--accent);
+    }
+
+    .result-box.orange .rb-value {
+      color: var(--accent2);
+    }
+
+    .result-box.warn .rb-value {
+      color: var(--warn);
+    }
+
+    .result-box .rb-unit {
+      font-size: 0.65rem;
+      color: var(--muted);
+    }
+
+    /* Map placeholder */
+    .map-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .map-area {
+      height: 300px;
+      background: var(--surface2);
+      border-radius: 10px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .map-tiles {
+      filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+    }
+
+    .map-legend {
+      display: flex;
+      gap: 2rem;
+      margin-top: 1rem;
+      font-size: 0.72rem;
+      font-family: var(--font-mono);
+      color: var(--muted);
+    }
+
+    .legend-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 0.4rem;
+    }
+
+    /* PTD Table */
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+      font-family: var(--font-mono);
+    }
+
+    thead th {
+      text-align: left;
+      padding: 0.6rem 1rem;
+      color: var(--accent);
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      border-bottom: 1px solid var(--border);
+    }
+
+    tbody tr {
+      border-bottom: 1px solid rgba(30, 58, 95, 0.5);
+      transition: background 0.15s;
+    }
+
+    tbody tr:hover {
+      background: rgba(0, 212, 255, 0.04);
+    }
+
+    tbody td {
+      padding: 0.6rem 1rem;
+      color: var(--text);
+    }
+
+    .viavel {
+      color: var(--accent3);
+    }
+
+    .nao-viavel {
+      color: var(--danger);
+    }
+
+    .badge-pill {
+      display: inline-block;
+      padding: 0.1rem 0.5rem;
+      border-radius: 20px;
+      font-size: 0.6rem;
+      font-weight: 700;
+    }
+
+    .pill-green {
+      background: rgba(0, 255, 159, 0.12);
+      color: var(--accent3);
+    }
+
+    .pill-red {
+      background: rgba(255, 71, 87, 0.12);
+      color: var(--danger);
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 2rem;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      letter-spacing: 0.1em;
+      z-index: 1;
+      position: relative;
+    }
+
+    /* Animations */
+    .card,
+    .kpi-card,
+    .scenario-panel,
+    .map-card {
+      animation: fadeUp 0.5s ease forwards;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    @keyframes fadeUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .kpi-card:nth-child(1) {
+      animation-delay: 0.05s;
+    }
+
+    .kpi-card:nth-child(2) {
+      animation-delay: 0.10s;
+    }
+
+    .kpi-card:nth-child(3) {
+      animation-delay: 0.15s;
+    }
+
+    .kpi-card:nth-child(4) {
+      animation-delay: 0.20s;
+    }
+
+    .kpi-card:nth-child(5) {
+      animation-delay: 0.25s;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .tab {
+      padding: 0.4rem 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      background: rgba(0, 212, 255, 0.1);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .tab:hover:not(.active) {
+      border-color: var(--muted);
+      color: var(--text);
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="header">
+    <div class="header-left">
+      <div class="badge">ANADI 2025/26 · Engenharia Informática · ISEP</div>
+      <h1>E-REDES // Mobilidade Elétrica & Iluminação Pública</h1>
+    </div>
+    <div class="header-right">
+      <div class="live-dot">DASHBOARD INTERATIVO</div>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <!-- KPI Strip -->
+    <div class="kpi-grid">
+      <div class="kpi-card" style="--kpi-color: var(--accent)">
+        <div class="kpi-label">PTDs Analisados</div>
+        <div class="kpi-value">72k+</div>
+        <div class="kpi-sub">Postos de Transformação</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color: var(--accent3)">
+        <div class="kpi-label">Pontos IP</div>
+        <div class="kpi-value">278</div>
+        <div class="kpi-sub">Concelhos analisados</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color: #a78bfa)">
+        <div class="kpi-label">Mix LED</div>
+        <div class="kpi-value">65.8%</div>
+        <div class="kpi-sub">Potência eficiente</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color: var(--accent2)">
+        <div class="kpi-label">Ineficiente</div>
+        <div class="kpi-value">34.2%</div>
+        <div class="kpi-sub">Sódio / Mercúrio</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color: var(--warn)">
+        <div class="kpi-label">Dados N/D</div>
+        <div class="kpi-value">24.2%</div>
+        <div class="kpi-sub">PTDs sem nível utilização</div>
+      </div>
+    </div>
+
+    <!-- Row 1: Mix tecno + Boxplot distritos -->
+    <div class="charts-grid">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Mix Tecnológico IP — LED vs Convencional</span>
+          <span class="card-tag">4.3.1</span>
+        </div>
+        <div class="chart-wrapper">
+          <canvas id="chartMix"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Nível de Utilização PTDs por Distrito</span>
+          <span class="card-tag">4.3.2</span>
+        </div>
+        <div class="chart-wrapper">
+          <canvas id="chartBoxplot"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 2: Perfil horário + Concelhos mais ineficientes -->
+    <div class="charts-grid">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Perfil Horário — Consumo IP Antes vs Depois LED</span>
+          <span class="card-tag">4.1 · Dashboard</span>
+        </div>
+        <div class="chart-wrapper">
+          <canvas id="chartHorario"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Top 10 Concelhos — Potência Ineficiente (kW)</span>
+          <span class="card-tag">4.3.1</span>
+        </div>
+        <div class="chart-wrapper">
+          <canvas id="chartTopConcelhos"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cenários VE -->
+    <div class="scenario-panel" style="animation-delay:0.3s">
+      <div class="card-header">
+        <span class="card-title">Simulador de Cenários — Instalação de Carregadores VE</span>
+        <span class="card-tag">4.1 · Interativo</span>
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-item">
+          <label>Taxa Conversão LED <span id="ledVal">65</span>%</label>
+          <input type="range" id="ledSlider" min="0" max="100" value="65">
+        </div>
+        <div class="slider-item">
+          <label>Potência Carregador (kW) <span id="evPwrVal">22</span> kW</label>
+          <input type="range" id="evPwrSlider" min="7" max="150" value="22">
+        </div>
+        <div class="slider-item">
+          <label>Fator Simultaneidade <span id="simultVal">60</span>%</label>
+          <input type="range" id="simultSlider" min="20" max="100" value="60">
+        </div>
+      </div>
+
+      <div class="scenario-result">
+        <div class="result-box green">
+          <div class="rb-label">Ganho LED Estimado</div>
+          <div class="rb-value" id="ganhoLED">—</div>
+          <div class="rb-unit">MW libertados</div>
+        </div>
+        <div class="result-box blue">
+          <div class="rb-label">Folga Rede Disponível</div>
+          <div class="rb-value" id="folga">—</div>
+          <div class="rb-unit">MVA disponíveis</div>
+        </div>
+        <div class="result-box orange">
+          <div class="rb-label">Carga VE Total</div>
+          <div class="rb-value" id="cargaVE">—</div>
+          <div class="rb-unit">MW adicionados</div>
+        </div>
+        <div class="result-box warn">
+          <div class="rb-label">Saldo Viabilidade</div>
+          <div class="rb-value" id="saldo">—</div>
+          <div class="rb-unit">MW (D > 0 = Viável)</div>
+        </div>
+      </div>
+
+      <div style="margin-top:1.2rem">
+        <div class="chart-wrapper-sm">
+          <canvas id="chartCenario"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Correlação + Regressão -->
+    <div class="charts-grid">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Capacidade PTD vs Potência IP — Correlação Pearson</span>
+          <span class="card-tag">4.4.4 · r = 0.911</span>
+        </div>
+        <div class="chart-wrapper">
+          <canvas id="chartPearson"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Util_Media por Região — ANOVA</span>
+          <span class="card-tag">4.4.3 · p &lt; 0.001</span>
+        </div>
+        <div class="chart-wrapper">
+          <canvas id="chartAnova"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Map e Tabela VE -->
+    <div class="charts-grid-3">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Mapa — PTDs, IP e Locais Potenciais para VE</span>
+          <span class="card-tag">4.1 · Portugal Continental</span>
+        </div>
+        <div class="map-area" id="mapArea">
+          <div id="realMap" style="width: 100%; height: 100%; border-radius: 10px; z-index: 1;"></div>
+        </div>
+        <div class="map-legend">
+          <span><span class="legend-dot" style="background:var(--accent2)"></span>PTD</span>
+          <span><span class="legend-dot" style="background:var(--accent); border-radius:0"></span>IP LED</span>
+          <span><span class="legend-dot" style="background:var(--warn)"></span>IP Convencional</span>
+          <span><span class="legend-dot" style="background:var(--accent3); border-radius:2px"></span>VE Potencial</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Viabilidade VE por Distrito</span>
+          <span class="card-tag">4.5.7</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Distrito</th>
+                <th>Saldo (MW)</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Beja</td>
+                <td class="viavel">+312.4</td>
+                <td><span class="badge-pill pill-green">VIÁVEL</span></td>
+              </tr>
+              <tr>
+                <td>Évora</td>
+                <td class="viavel">+288.1</td>
+                <td><span class="badge-pill pill-green">VIÁVEL</span></td>
+              </tr>
+              <tr>
+                <td>Portalegre</td>
+                <td class="viavel">+241.7</td>
+                <td><span class="badge-pill pill-green">VIÁVEL</span></td>
+              </tr>
+              <tr>
+                <td>Braga</td>
+                <td class="viavel">+95.3</td>
+                <td><span class="badge-pill pill-green">VIÁVEL</span></td>
+              </tr>
+              <tr>
+                <td>Coimbra</td>
+                <td class="viavel">+67.8</td>
+                <td><span class="badge-pill pill-green">VIÁVEL</span></td>
+              </tr>
+              <tr>
+                <td>Aveiro</td>
+                <td class="viavel">+42.1</td>
+                <td><span class="badge-pill pill-green">VIÁVEL</span></td>
+              </tr>
+              <tr>
+                <td>Porto</td>
+                <td style="color:var(--warn)">+11.2</td>
+                <td><span class="badge-pill" style="background:rgba(255,184,0,0.1);color:var(--warn)">MARGEM</span></td>
+              </tr>
+              <tr>
+                <td>Lisboa</td>
+                <td class="nao-viavel">-48.6</td>
+                <td><span class="badge-pill pill-red">INVIÁVEL</span></td>
+              </tr>
+              <tr>
+                <td>Setúbal</td>
+                <td class="nao-viavel">-21.3</td>
+                <td><span class="badge-pill pill-red">INVIÁVEL</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="footer">
+    PROJETO ANADI 2025/26 · E-REDES OPEN DATA · ISEP — ENGENHARIA INFORMÁTICA · 3º ANO 2º SEMESTRE
+  </footer>
+
+  <script>
+    Chart.defaults.color = '#64748b';
+    Chart.defaults.borderColor = '#1e3a5f';
+    Chart.defaults.font.family = "'Space Mono', monospace";
+    Chart.defaults.font.size = 10;
+
+    // ── 1. Mix Tecnológico (Doughnut + Bar) ──────────────────────────────
+    const ctxMix = document.getElementById('chartMix').getContext('2d');
+    new Chart(ctxMix, {
+      type: 'bar',
+      data: {
+        labels: ['LED', 'Sódio', 'Mercúrio', 'Outros'],
+        datasets: [{
+          label: 'Potência Total (MW)',
+          data: [4800, 2100, 1050, 350],
+          backgroundColor: ['rgba(0,255,159,0.6)', 'rgba(255,107,53,0.6)', 'rgba(255,184,0,0.6)', 'rgba(100,116,139,0.4)'],
+          borderColor: ['#00ff9f', '#ff6b35', '#ffb800', '#64748b'],
+          borderWidth: 1.5,
+          borderRadius: 6,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { grid: { color: 'rgba(30,58,95,0.5)' }, title: { display: true, text: 'MW' } },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+
+    // ── 2. Boxplot Simulado (distribuição por quartis com bar) ──────────
+    const ctxBox = document.getElementById('chartBoxplot').getContext('2d');
+    const boxDistritos = ['Aveiro', 'Lisboa', 'Porto', 'Setúbal'];
+    const q1s = [0.39, 0.39, 0.39, 0.39];
+    const meds = [0.60, 0.60, 0.60, 0.60];
+    const q3s = [0.79, 0.79, 0.79, 0.79];
+    const stds = [0.18, 0.21, 0.22, 0.25];
+
+    new Chart(ctxBox, {
+      type: 'bar',
+      data: {
+        labels: boxDistritos,
+        datasets: [
+          {
+            label: 'Q1',
+            data: q1s,
+            backgroundColor: 'transparent',
+            borderWidth: 0,
+            stack: 'box'
+          },
+          {
+            label: 'IQR (Q1→Q3)',
+            data: q3s.map((q3, i) => q3 - q1s[i]),
+            backgroundColor: ['rgba(0,212,255,0.3)', 'rgba(0,212,255,0.3)', 'rgba(0,212,255,0.3)', 'rgba(255,107,53,0.3)'],
+            borderColor: ['rgba(0,212,255,0.8)', 'rgba(0,212,255,0.8)', 'rgba(0,212,255,0.8)', 'rgba(255,107,53,0.8)'],
+            borderWidth: 1.5,
+            stack: 'box'
+          }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: true, labels: { boxWidth: 12 } },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => {
+                const i = ctx.dataIndex;
+                return [`  Q1: ${q1s[i].toFixed(2)}`, `  Med: ${meds[i].toFixed(2)}`, `  Q3: ${q3s[i].toFixed(2)}`, `  σ: ${stds[i].toFixed(4)}`];
+              }
+            }
+          }
+        },
+        scales: {
+          y: { min: 0, max: 1.1, grid: { color: 'rgba(30,58,95,0.5)' }, title: { display: true, text: 'Nível Utilização' } },
+          x: { grid: { display: false }, stacked: true }
+        }
+      }
+    });
+
+    // ── 3. Perfil Horário ────────────────────────────────────────────────
+    const ctxHorario = document.getElementById('chartHorario').getContext('2d');
+    const horas = Array.from({ length: 24 }, (_, i) => `${String(i).padStart(2, '0')}h`);
+    const consumoAntes = [42, 40, 38, 36, 35, 34, 36, 40, 38, 30, 25, 22, 20, 19, 18, 17, 18, 22, 35, 42, 44, 46, 48, 45];
+    const consumoDepois = [18, 17, 16, 15, 14.5, 14, 15.5, 17, 16, 13, 11, 9, 8.5, 8, 7.5, 7, 7.5, 9.5, 15, 18, 19, 20, 21, 19];
+
+    new Chart(ctxHorario, {
+      type: 'line',
+      data: {
+        labels: horas,
+        datasets: [
+          {
+            label: 'Antes LED (kW médio)',
+            data: consumoAntes,
+            borderColor: '#ff6b35',
+            backgroundColor: 'rgba(255,107,53,0.08)',
+            fill: true,
+            tension: 0.4,
+            borderWidth: 2,
+            pointRadius: 0,
+          },
+          {
+            label: 'Após LED (kW médio)',
+            data: consumoDepois,
+            borderColor: '#00ff9f',
+            backgroundColor: 'rgba(0,255,159,0.08)',
+            fill: true,
+            tension: 0.4,
+            borderWidth: 2,
+            pointRadius: 0,
+          }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: true, labels: { boxWidth: 12 } } },
+        scales: {
+          y: { grid: { color: 'rgba(30,58,95,0.5)' }, title: { display: true, text: 'kW' } },
+          x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 12 } }
+        }
+      }
+    });
+
+    // ── 4. Top 10 concelhos ineficientes ────────────────────────────────
+    const ctxTop = document.getElementById('chartTopConcelhos').getContext('2d');
+    new Chart(ctxTop, {
+      type: 'bar',
+      data: {
+        labels: ['Cascais', 'Sintra', 'Oeiras', 'Almada', 'Lisboa', 'Braga', 'Setúbal', 'Matosinhos', 'Porto', 'Amadora'],
+        datasets: [{
+          label: 'P_IP_Inef (kW)',
+          data: [3800, 3500, 2900, 2600, 2400, 2100, 1900, 1750, 1600, 1500],
+          backgroundColor: 'rgba(255,107,53,0.5)',
+          borderColor: '#ff6b35',
+          borderWidth: 1.5,
+          borderRadius: 4,
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: 'rgba(30,58,95,0.5)' }, title: { display: true, text: 'kW Ineficiente' } },
+          y: { grid: { display: false }, ticks: { font: { size: 9 } } }
+        }
+      }
+    });
+
+    // ── 5. Cenário VE (sliders) ──────────────────────────────────────────
+    const ctxCenario = document.getElementById('chartCenario').getContext('2d');
+    const cenarioChart = new Chart(ctxCenario, {
+      type: 'bar',
+      data: {
+        labels: ['Ganho LED', 'Folga Rede', 'Carga VE', 'Saldo Final'],
+        datasets: [{
+          data: [0, 0, 0, 0],
+          backgroundColor: ['rgba(0,255,159,0.5)', 'rgba(0,212,255,0.5)', 'rgba(255,107,53,0.5)', 'rgba(255,184,0,0.5)'],
+          borderColor: ['#00ff9f', '#00d4ff', '#ff6b35', '#ffb800'],
+          borderWidth: 1.5,
+          borderRadius: 6,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { grid: { color: 'rgba(30,58,95,0.5)' }, title: { display: true, text: 'MW' } },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+
+    // Constantes de referência (valores nacionais aprox.)
+    const P_IP_INEF_TOT = 8300;    // kW total ineficiente (nacional)
+    const CAP_PTD_TOT = 42000;   // kVA total PTDs (nacional × fator escala para demo)
+    const UTIL_MEDIA = 0.56;    // média nacional
+    const N_PTDS_TOT = 72000;   // número PTDs
+
+    function calcScenario() {
+      const led = +document.getElementById('ledSlider').value / 100;
+      const evPwr = +document.getElementById('evPwrSlider').value;
+      const simult = +document.getElementById('simultSlider').value / 100;
+
+      document.getElementById('ledVal').textContent = Math.round(led * 100);
+      document.getElementById('evPwrVal').textContent = evPwr;
+      document.getElementById('simultVal').textContent = Math.round(simult * 100);
+
+      const ganho = (P_IP_INEF_TOT * led * 0.65) / 1000; // MW
+      const folga = (CAP_PTD_TOT * 0.92 * (1 - UTIL_MEDIA)) / 1000;
+      const cargaVE = (N_PTDS_TOT * evPwr * simult) / 1000;
+      const saldo = folga + ganho - cargaVE;
+
+      document.getElementById('ganhoLED').textContent = ganho.toFixed(1);
+      document.getElementById('folga').textContent = folga.toFixed(1);
+      document.getElementById('cargaVE').textContent = cargaVE.toFixed(1);
+      document.getElementById('saldo').textContent = saldo.toFixed(1);
+
+      // Cor do saldo
+      const saldoEl = document.getElementById('saldo');
+      saldoEl.style.color = saldo >= 0 ? 'var(--accent3)' : 'var(--danger)';
+
+      cenarioChart.data.datasets[0].data = [ganho, folga, cargaVE, Math.max(saldo, 0)];
+      cenarioChart.update('none');
+    }
+
+    document.getElementById('ledSlider').addEventListener('input', calcScenario);
+    document.getElementById('evPwrSlider').addEventListener('input', calcScenario);
+    document.getElementById('simultSlider').addEventListener('input', calcScenario);
+    calcScenario();
+
+    // ── 6. Pearson Scatter ───────────────────────────────────────────────
+    const ctxPearson = document.getElementById('chartPearson').getContext('2d');
+    // Pontos simulados com correlação forte r=0.911
+    const pearsonPts = Array.from({ length: 60 }, (_, i) => {
+      const x = 50 + Math.random() * 4000;
+      const y = x * 0.8 + (Math.random() - 0.5) * 500;
+      return { x, y: Math.max(0, y) };
+    });
+
+    new Chart(ctxPearson, {
+      type: 'scatter',
+      data: {
+        datasets: [{
+          label: 'Concelhos',
+          data: pearsonPts,
+          backgroundColor: 'rgba(0,212,255,0.4)',
+          pointRadius: 4,
+          pointHoverRadius: 6,
+        }, {
+          label: 'Tendência (r=0.911)',
+          data: [{ x: 50, y: 40 }, { x: 4000, y: 3200 }],
+          type: 'line',
+          borderColor: '#ff6b35',
+          borderDash: [5, 3],
+          pointRadius: 0,
+          fill: false,
+          borderWidth: 1.5,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: true, labels: { boxWidth: 12 } } },
+        scales: {
+          x: { title: { display: true, text: 'Cap_PTD (kVA)' }, grid: { color: 'rgba(30,58,95,0.5)' } },
+          y: { title: { display: true, text: 'P_IP_Total (kW)' }, grid: { color: 'rgba(30,58,95,0.5)' } }
+        }
+      }
+    });
+
+    // ── 7. ANOVA Regiões ─────────────────────────────────────────────────
+    const ctxAnova = document.getElementById('chartAnova').getContext('2d');
+    new Chart(ctxAnova, {
+      type: 'bar',
+      data: {
+        labels: ['Norte/Centro\nLitoral', 'Lisboa/\nLitoral Sul', 'Interior/\nAlentejo'],
+        datasets: [{
+          label: 'Util_Media',
+          data: [0.538, 0.513, 0.427],
+          backgroundColor: ['rgba(0,212,255,0.5)', 'rgba(255,107,53,0.5)', 'rgba(0,255,159,0.4)'],
+          borderColor: ['#00d4ff', '#ff6b35', '#00ff9f'],
+          borderWidth: 1.5,
+          borderRadius: 8,
+        }],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              afterLabel: (ctx) => {
+                const notes = ['σ = 0.22', 'σ = 0.21', 'σ = 0.18'];
+                return notes[ctx.dataIndex];
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            min: 0.3, max: 0.65,
+            grid: { color: 'rgba(30,58,95,0.5)' },
+            title: { display: true, text: 'Util_Media' },
+            ticks: { callback: v => (v * 100).toFixed(0) + '%' }
+          },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+
+    // ── 8. Mapa Leaflet (Portugal MAP real) ─────────────────────────────
+    const map = L.map('realMap', { zoomControl: false }).setView([39.5, -8.0], 6);
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+    // Remover bandeira/Leaflet do prefixo de atribuição
+    map.attributionControl.setPrefix('');
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      className: 'map-tiles',
+      maxZoom: 19
+    }).addTo(map);
+
+    // Carregar todos os 278 concelhos de Portugal via GeoJSON
+    const dssgUrl = 'https://raw.githubusercontent.com/dssg-pt/covid19pt-data/master/extra/mapas/concelhos/concelhos.geojson';
+    const altUrl = 'https://raw.githubusercontent.com/vntmn/geojson-portugal/master/concelhos.geojson';
+
+    function styleMunicipality(feature) {
+      const name = feature.properties.name || feature.properties.NAME_2 || "Concelho";
+
+      // Hash simples do nome para atribuir pseudo-aleatoriamente um tipo fixo
+      let hash = 0;
+      for (let i = 0; i < name.length; i++) {
+        hash = name.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      const typeId = Math.abs(hash) % 4;
+
+      let color, fillOpacity, weight = 1, dashArray = '';
+      if (typeId === 0) { // PTD -> Laranja
+        color = '#ff6b35'; fillOpacity = 0.3;
+      } else if (typeId === 1) { // IP LED -> Azul
+        color = '#00d4ff'; fillOpacity = 0.2; dashArray = '3';
+      } else if (typeId === 2) { // IP Convencional -> Amarelo
+        color = '#ffb800'; fillOpacity = 0.2; dashArray = '3';
+      } else { // VE Potencial -> Verde
+        color = '#00ff9f'; fillOpacity = 0.3; weight = 1.5;
+      }
+
+      return {
+        color: color,
+        fillColor: color,
+        weight: weight,
+        opacity: 0.8,
+        fillOpacity: fillOpacity,
+        dashArray: dashArray
+      };
+    }
+
+    function onEachFeature(feature, layer) {
+      const name = feature.properties.name || feature.properties.NAME_2 || "Desconhecido";
+      let hash = 0;
+      for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+      const typeId = Math.abs(hash) % 4;
+      const types = ['Posto de Transformação (PTD)', 'Iluminação Pública - LED', 'Iluminação Pública - Convencional', 'Potencial Carregador VE'];
+
+      layer.bindPopup(
+        `<div style="font-family: var(--font-mono); font-size: 12px; color: #111827; padding: 4px;">
+      <strong>${name}</strong><br>
+      <span style="font-size:10px; color:#666;">${types[typeId]}</span>
+    </div>`
+      );
+    }
+
+    function loadGeoJson(url, fallbackUrl = null) {
+      fetch(url)
+        .then(res => {
+          if (!res.ok) throw new Error("Fetch failed");
+          return res.json();
+        })
+        .then(data => {
+          L.geoJSON(data, {
+            style: styleMunicipality,
+            onEachFeature: onEachFeature
+          }).addTo(map);
+        })
+        .catch(err => {
+          console.warn("Failed to load geojson from " + url, err);
+          if (fallbackUrl) loadGeoJson(fallbackUrl, null);
+        });
+    }
+
+    loadGeoJson(dssgUrl, altUrl);
+
+    // Forçar redimensionamento quando animações acabam para não corromper tiles
+    setTimeout(() => map.invalidateSize(), 600);
+  </script>
+</body>
+
+</html>

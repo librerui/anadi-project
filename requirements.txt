@@ -6,3 +6,5 @@ matplotlib
 scipy
 openpyxl
 statsmodels
+streamlit
+plotly
