@@ -12,5 +12,8 @@ $(VENV)/bin/activate: requirements.txt
 	$(PIP) install -r requirements.txt
 	touch $(VENV)/bin/activate
 
+dashboard:
+	streamlit run dashboard.py
+
 clean:
 	rm -rf $(VENV)
