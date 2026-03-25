@@ -10,7 +10,7 @@ import seaborn as sns
 import folium
 from streamlit_folium import st_folium
 
-st.set_page_config(page_title="Dashboard", layout="wide", page_icon="⚡")
+st.set_page_config(page_title="Dashboard", layout="wide")
 
 @st.cache_data
 def load_data():
