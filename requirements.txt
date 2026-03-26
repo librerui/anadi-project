@@ -8,3 +8,6 @@ openpyxl
 statsmodels
 streamlit
 plotly
+seaborn
+folium
+streamlit_folium
