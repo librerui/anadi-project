@@ -11,3 +11,4 @@ plotly
 seaborn
 folium
 streamlit_folium
+geopandas
