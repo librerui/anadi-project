@@ -120,7 +120,7 @@ if page == "Visão Geral":
         plt.close()
 
     with col_b:
-        st.subheader("Saldo de Viabilidade VE — Top 15 concelhos")
+        st.subheader("Saldo de Viabilidade VE, Top 15 concelhos")
         top15 = df.nlargest(15, "Saldo Final de Viabilidade").dropna(subset=["Concelho"])
         fig, ax = plt.subplots(figsize=(6, 6))
         cores2 = ["#2ecc71" if v > 0 else "#e74c3c" for v in top15["Saldo Final de Viabilidade"]]
@@ -138,15 +138,21 @@ elif page == "Perfis Horários":
 
     cod_dist = [k for k, v in MAPA_DISTRITOS.items() if v == distrito_sel][0]
     df_dist  = df[df["CodDistrito"] == cod_dist]
-    p_total  = df_dist["P_IP_Total"].sum()
-    p_led    = p_total * (1 - led_factor)
+
+    p_inef         = df_dist["P_IP_Inef"].sum()
+    p_total_antes  = df_dist["P_IP_Total"].sum()
+    # Após LED: parte eficiente mantém-se, parte ineficiente reduz led_factor%
+    p_total_depois = p_total_antes - p_inef * led_factor
 
     horas  = list(range(24))
     perfil = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.8, 0.3, 0.0, 0.0, 0.0, 0.0,
               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.8, 1.0, 1.0, 1.0, 1.0]
 
-    consumo_antes  = [p_total * f for f in perfil]
-    consumo_depois = [p_led   * f for f in perfil]
+    consumo_antes  = [p_total_antes  * f for f in perfil]
+    consumo_depois = [p_total_depois * f for f in perfil]
+
+    poupanca = sum(consumo_antes) - sum(consumo_depois)
+    pct_reducao = poupanca / sum(consumo_antes) * 100
 
     fig, ax = plt.subplots(figsize=(12, 5))
     ax.fill_between(horas, consumo_antes,  alpha=0.3, color="#e74c3c", label="Antes (convencional)")
@@ -157,17 +163,17 @@ elif page == "Perfis Horários":
     ax.set_xticklabels([f"{h}h" for h in horas], fontsize=8)
     ax.set_xlabel("Hora do dia")
     ax.set_ylabel("Potência (kW)")
+    ax.set_title(f"Perfil Horário: {distrito_sel} (redução de {pct_reducao:.1f}% no consumo total)")
     ax.legend()
     ax.grid(linestyle="--", alpha=0.4)
-
-    poupanca = sum(consumo_antes) - sum(consumo_depois)
     st.pyplot(fig)
     plt.close()
 
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4 = st.columns(4)
     col1.metric("Consumo diário antes (kWh)",  f"{sum(consumo_antes):,.0f}")
     col2.metric("Consumo diário depois (kWh)", f"{sum(consumo_depois):,.0f}")
     col3.metric("Poupança diária (kWh)",       f"{poupanca:,.0f}")
+    col4.metric("Redução no consumo",          f"{pct_reducao:.1f}%")
 
 elif page == "Mix Tecnológico":
     st.title("Mix Tecnológico. LED vs Convencional")
@@ -248,7 +254,7 @@ elif page == "Potência Libertada":
     col_a, col_b = st.columns(2)
 
     with col_a:
-        st.subheader("Ganho relativo LED — Top 15 concelhos")
+        st.subheader("Ganho relativo LED, Top 15 concelhos")
         top15 = df_led.nlargest(15, "Ganho LED Sim").dropna(subset=["Concelho"])
         top15["Ganho_Pct"] = (top15["Ganho LED Sim"] / top15["Folga Rede"] * 100).round(1)
         top15 = top15.sort_values("Ganho_Pct", ascending=True)
