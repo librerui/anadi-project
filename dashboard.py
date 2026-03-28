@@ -245,18 +245,53 @@ elif page == "Potência Libertada":
     col3.metric("Fator utilizado",            f"{led_factor:.0%}")
 
     st.divider()
-    st.subheader("Antes vs Depois — Folga da rede (Top 10)")
-    top10 = df_led.nlargest(10, "Ganho LED Sim").dropna(subset=["Concelho"])
-    x = np.arange(len(top10))
-    w = 0.35
-    fig, ax = plt.subplots(figsize=(10, 5))
-    ax.bar(x - w/2, top10["Folga Rede"], w, label="Folga sem LED", color="steelblue", alpha=0.85)
-    ax.bar(x + w/2, top10["Folga Total"], w, label="Folga com LED", color="#2ecc71",  alpha=0.85)
-    ax.set_xticks(x)
-    ax.set_xticklabels(top10["Concelho"].astype(str), rotation=45, ha="right")
-    ax.legend()
-    st.pyplot(fig)
-    plt.close()
+    col_a, col_b = st.columns(2)
+
+    with col_a:
+        st.subheader("Ganho relativo LED — Top 15 concelhos")
+        top15 = df_led.nlargest(15, "Ganho LED Sim").dropna(subset=["Concelho"])
+        top15["Ganho_Pct"] = (top15["Ganho LED Sim"] / top15["Folga Rede"] * 100).round(1)
+        top15 = top15.sort_values("Ganho_Pct", ascending=True)
+
+        fig, ax = plt.subplots(figsize=(6, 6))
+        cores = ["#2ecc71" if v > 20 else "#f39c12" if v > 10 else "#e74c3c"
+                 for v in top15["Ganho_Pct"]]
+        bars = ax.barh(top15["Concelho"].astype(str), top15["Ganho_Pct"],
+                       color=cores, alpha=0.85)
+        for bar, val in zip(bars, top15["Ganho_Pct"]):
+            ax.text(val + 0.3, bar.get_y() + bar.get_height()/2,
+                    f"{val:.1f}%", va="center", fontsize=8)
+        ax.set_xlabel("Aumento da folga com LED (%)")
+        ax.set_title("% de aumento na folga disponível\napós substituição LED")
+        ax.grid(axis="x", linestyle="--", alpha=0.4)
+        st.pyplot(fig)
+        plt.close()
+
+    with col_b:
+        st.subheader("Distribuição do ganho por distrito")
+        ganho_dist = (
+            df_led.groupby("Distrito")[["Ganho LED Sim", "Folga Rede"]]
+            .sum()
+            .assign(Ganho_Pct=lambda x: x["Ganho LED Sim"] / x["Folga Rede"] * 100)
+            .sort_values("Ganho_Pct", ascending=True)
+            .dropna()
+        )
+        fig, ax = plt.subplots(figsize=(6, 6))
+        cores2 = ["#2ecc71" if v > 5 else "#f39c12" if v > 2 else "#e74c3c"
+                  for v in ganho_dist["Ganho_Pct"]]
+        bars2 = ax.barh(ganho_dist.index, ganho_dist["Ganho_Pct"],
+                        color=cores2, alpha=0.85)
+        for bar, val in zip(bars2, ganho_dist["Ganho_Pct"]):
+            ax.text(val + 0.05, bar.get_y() + bar.get_height()/2,
+                    f"{val:.1f}%", va="center", fontsize=8)
+        ax.axvline(ganho_dist["Ganho_Pct"].mean(), color="navy", linestyle="--",
+                   linewidth=1.5, label=f"Média: {ganho_dist['Ganho_Pct'].mean():.1f}%")
+        ax.set_xlabel("Aumento da folga com LED (%)")
+        ax.set_title("% ganho por distrito")
+        ax.legend(fontsize=8)
+        ax.grid(axis="x", linestyle="--", alpha=0.4)
+        st.pyplot(fig)
+        plt.close()
 
 elif page == "Cenários VE":
     st.title("Cenários de Integração de Carregadores VE")
@@ -433,47 +468,69 @@ elif page == "Mapa Interativo":
             return None, None
 
     ptd_map = ptd_data.copy()
-    ptd_map[["lat","lon"]] = ptd_map["Coordenadas Geográficas"].apply(lambda x: pd.Series(parse_coords(x)))
+    ptd_map[["lat","lon"]] = ptd_map["Coordenadas Geográficas"].apply(
+        lambda x: pd.Series(parse_coords(x))
+    )
     ptd_map = ptd_map.dropna(subset=["lat","lon"])
 
-    df_ev_map = df.copy()
-    df_ev_map["Ganho LED Sim"] = df_ev_map["P_IP_Inef"] * 0.65
-    df_ev_map["Carga VE Sim"]  = df_ev_map["N_PTDs"] * 22 * 0.60
-    df_ev_map["Saldo Sim"]     = df_ev_map["Folga Rede"] + df_ev_map["Ganho LED Sim"] - df_ev_map["Carga VE Sim"]
-    df_ev_map["Viavel"]        = df_ev_map["Saldo Sim"] > 0
+    # Folga e máx. carregadores por PTD individual
+    ptd_map["Folga_PTD"] = (
+        ptd_map["Potência instalada [kVA]"] * 0.92 *
+        (1 - ptd_map["Nível de Utilização [%]"])
+    ).clip(lower=0)
+    ptd_map["Max_Carregadores"] = (ptd_map["Folga_PTD"] / (22 * 0.60)).clip(lower=0)
+    ptd_map["Max_Carregadores"] = ptd_map["Max_Carregadores"].fillna(0).astype(int)
 
-    ptd_map = ptd_map.merge(df_ev_map[["Viavel","Util_Media","Saldo Sim"]].reset_index(), on="CodDistritoConcelho", how="left")
+    mostrar_viaveis = st.checkbox("Mostrar apenas PTDs com folga > 0", value=False)
+    sample_size = st.slider("Número de PTDs a mostrar", 100, 5000, 1000, step=100)
 
-    col1, col2 = st.columns(2)
-    mostrar_ptd      = col1.checkbox("Mostrar PTDs", value=True)
-    mostrar_viaveis  = col2.checkbox("Mostrar apenas concelhos viáveis", value=False)
-    sample_size = st.slider("Número de PTDs a mostrar (por segurança da performance)", 100, 5000, 1000, step=100)
-    
     ptd_sample = ptd_map.sample(min(sample_size, len(ptd_map)), random_state=42)
     if mostrar_viaveis:
-        ptd_sample = ptd_sample[ptd_sample["Viavel"] == True]
+        ptd_sample = ptd_sample[ptd_sample["Max_Carregadores"] > 0]
+
+    def cor_gradiente(n):
+        if pd.isna(n) or n == 0: return "#e74c3c"
+        elif n < 2:              return "#e8673c"
+        elif n < 5:              return "#e8973c"
+        elif n < 10:             return "#e8b73c"
+        elif n < 20:             return "#a8cc3c"
+        else:                    return "#2ecc71"
 
     m = folium.Map(location=[39.5, -8.0], zoom_start=7, tiles="CartoDB positron")
 
     for _, row in ptd_sample.iterrows():
-        if pd.isna(row.get("Viavel")): cor = "gray"
-        elif row["Viavel"]: cor = "green"
-        else: cor = "red"
-
-        util = f"{row['Util_Media']:.1%}" if pd.notna(row.get("Util_Media")) else "N/D"
-        saldo = f"{row['Saldo Sim']:,.0f} kVA" if pd.notna(row.get("Saldo Sim")) else "N/D"
+        n   = row["Max_Carregadores"]
+        cor = cor_gradiente(n)
+        util  = f"{row['Nível de Utilização [%]']:.1%}" if pd.notna(row.get("Nível de Utilização [%]")) else "N/D"
+        folga = f"{row['Folga_PTD']:,.1f} kVA"          if pd.notna(row.get("Folga_PTD"))               else "N/D"
 
         folium.CircleMarker(
-            location=[row["lat"], row["lon"]], radius=4, color=cor, fill=True, fill_color=cor, fill_opacity=0.7,
-            popup=folium.Popup(f"<b>{row.get('Concelho','N/D')}</b><br>Ocupação: {util}<br>Saldo VE: {saldo}<br>{'✅ Viável para VE' if row.get('Viavel') else '❌ Inviável'}", max_width=200)
+            location=[row["lat"], row["lon"]],
+            radius=4,
+            color=cor,
+            fill=True,
+            fill_color=cor,
+            fill_opacity=0.8,
+            popup=folium.Popup(
+                f"<b>{row.get('Concelho', 'N/D')}</b><br>"
+                f"Ocupação: {util}<br>"
+                f"Folga: {folga}<br>"
+                f"Máx. carregadores: {n}",
+                max_width=220
+            )
         ).add_to(m)
 
     legenda = """
-    <div style="position: fixed; bottom: 30px; left: 30px; z-index: 1000; background: white; padding: 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 12px;">
-        <b>Legenda</b><br>
-        <span style="color:green">●</span> Viável para VE<br>
-        <span style="color:red">●</span> Inviável<br>
-        <span style="color:gray">●</span> Sem dados
+    <div style="position: fixed; bottom: 30px; left: 30px; z-index: 1000;
+                background: white; padding: 12px; border-radius: 8px;
+                border: 1px solid #ccc; font-size: 12px; line-height: 1.8;">
+        <b>Máx. carregadores VE por PTD (22 kW)</b><br>
+        <span style="color:#e74c3c; font-size:16px;">●</span> 0 &nbsp;&nbsp;&nbsp;&nbsp; Sem folga<br>
+        <span style="color:#e8673c; font-size:16px;">●</span> 1 &nbsp;&nbsp;&nbsp;&nbsp; Muito baixo<br>
+        <span style="color:#e8973c; font-size:16px;">●</span> 2 – 4 &nbsp; Baixo<br>
+        <span style="color:#e8b73c; font-size:16px;">●</span> 5 – 9 &nbsp; Moderado<br>
+        <span style="color:#a8cc3c; font-size:16px;">●</span> 10 – 19 &nbsp; Bom<br>
+        <span style="color:#2ecc71; font-size:16px;">●</span> ≥ 20 &nbsp;&nbsp; Excelente
     </div>
     """
     m.get_root().html.add_child(folium.Element(legenda))
