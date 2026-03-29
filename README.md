@@ -18,6 +18,8 @@ A análise segue o pipeline:
 3. **Inferência Estatística**: teste t (ocupação < 60%), teste t de duas amostras (modernizados vs ineficientes), ANOVA regional com post-hoc de Tukey, correlação de Pearson
 4. **Regressão**: modelo OLS com diagnóstico de multicolinearidade (VIF), verificação de resíduos (Shapiro-Wilk, Durbin-Watson, Breusch-Pagan), identificação de concelhos prioritários para VE
 
+## [Artigo científico](./article/Viabilidade_da_Integração%20de_Mobilidade_Elétrica_na_Rede_de_Distribuição_Portuguesa.pdf)
+
 ## Instalação e Execução
 
 ### Requisitos
