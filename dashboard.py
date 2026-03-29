@@ -417,11 +417,6 @@ elif page == "Modelo Preditivo & Correl.":
         sns.heatmap(corr_matrix, annot=True, cmap="coolwarm", vmin=-1, vmax=1, ax=ax, fmt=".2f")
         st.pyplot(fig)
         plt.close()
-    with col2:
-        st.info("""
-        **Observação:** Existe uma fortíssima colinearidade (0.91) entre a *Capacidade do PTD* e a *Potência Total IP*.
-        Isto faz sentido, pois PTDs de maior capacidade são instalados em zonas que requerem mais iluminação.
-        """)
 
     st.divider()
 
@@ -437,7 +432,6 @@ elif page == "Modelo Preditivo & Correl.":
         vif_data["Variável"] = X.columns
         vif_data["VIF"] = [variance_inflation_factor(X_const.values, i+1) for i in range(X.shape[1])]
         st.dataframe(vif_data.style.format({"VIF": "{:.2f}"}), use_container_width=True)
-        st.warning("Variáveis com VIF > 5 indicam problemas de multicolinearidade. A *Potência IP Total* e a *Cap_PTD* partilham demasiada informação.")
 
     with col_ols:
         st.subheader("Modelo OLS")
