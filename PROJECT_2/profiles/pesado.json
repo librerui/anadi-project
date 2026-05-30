@@ -1,0 +1,10 @@
+{
+    "name": "Perfil Pesado",
+    "sample_cv": null,
+    "sample_loss": null,
+    "sample_lc": null,
+    "nn_max_iter": 300,
+    "nn_n_iter_no_change": 15,
+    "kfold_splits": 10,
+    "svm_max_iter": 5000
+}
