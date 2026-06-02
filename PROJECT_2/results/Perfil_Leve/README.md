@@ -1,5 +1,5 @@
 # Relatório de Resultados: Perfil Leve
-**Data:** 2026-05-30 14:02
+**Data:** 2026-06-02 09:59
 
 ## Regressão: PFolga_PTD
 

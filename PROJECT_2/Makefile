@@ -12,5 +12,9 @@ $(VENV)/bin/activate: requirements.txt
 	$(PIP) install -r requirements.txt
 	touch $(VENV)/bin/activate
 
+
+dashboard:
+	streamlit run prediction.py
+
 clean:
 	rm -rf $(VENV)
