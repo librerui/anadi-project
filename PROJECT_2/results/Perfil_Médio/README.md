@@ -1,5 +1,5 @@
 # Relatório de Resultados: Perfil Médio
-**Data:** 2026-06-10 15:23
+**Data:** 2026-06-10 21:17
 
 ## Regressão: PFolga_PTD
 
@@ -9,19 +9,9 @@
 | Linear | 37.4969 | 0.2423 | 57.3225 | 0.6420 |
 | Tree | 36.3839 | 0.2747 | 59.2583 | 0.9521 |
 | SVM | 36.7167 | 0.2297 | 59.4238 | 0.9145 |
-| NeuralNet | 35.6557 | 0.7148 | 56.7240 | 1.0049 |
+| NeuralNet | 36.7075 | 0.1465 | 57.3782 | 1.8506 |
 
 ### Diagnóstico: Curvas de Aprendizagem
-
-#### NeuralNet
-| | MAE (kVA) |
-|---|---|
-| Treino    | 36.5571 |
-| Validação | 36.7576 |
-| Gap       | 0.2005 |
-
-> . TREINO ADEQUADO: curvas convergem e gap reduzido  
-> O modelo generaliza bem para dados não vistos.
 
 #### Tree
 | | MAE (kVA) |
@@ -33,6 +23,16 @@
 > . TREINO ADEQUADO: curvas convergem e gap reduzido  
 > O modelo generaliza bem para dados não vistos.
 
+#### NeuralNet
+| | MAE (kVA) |
+|---|---|
+| Treino    | 36.5571 |
+| Validação | 36.7576 |
+| Gap       | 0.2005 |
+
+> . TREINO ADEQUADO: curvas convergem e gap reduzido  
+> O modelo generaliza bem para dados não vistos.
+
 ### Teste de Significância Estatística
 **Modelos:** NeuralNet vs Decision_Tree  
 **Teste:** t-test Pareado (α = 0.05)  
@@ -40,7 +40,7 @@
 
 | | NeuralNet | Decision_Tree |
 |---|---|---|
-| MAE | 35.6557 +/- 0.7148 | 36.3839 +/- 0.2747 |
+| MAE | 36.3839 +/- 0.1465 | 36.7075 +/- 0.2747 |
 | Estatística | 4.6659 | / |
 | p-value     | 0.0095 | / |
 | Resultado   | **Significativo:** | / |
