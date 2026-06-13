@@ -1,4 +1,4 @@
-*.venv/*
+.venv/*
 
 *~lock*
 
@@ -8,3 +8,5 @@
 *.log
 *.gz
 *.out
+
+*/enunciado.md
