@@ -1,0 +1,16 @@
+ipykernel 
+jupyter
+numpy
+pandas
+matplotlib
+scipy
+openpyxl
+statsmodels
+streamlit
+plotly
+seaborn
+folium
+streamlit_folium
+geopandas
+joblib
+scikit-learn
