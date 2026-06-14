@@ -1,5 +1,5 @@
 # Relatório de Resultados: Perfil Leve
-**Data:** 2026-06-13 22:54
+**Data:** 2026-06-14 14:50
 
 ## Regressão: PFolga_PTD
 
@@ -7,7 +7,7 @@
 | Modelo | MAE | +/-MAE | RMSE | +/-RMSE |
 |--------|-----|------|------|-------|
 | Linear | 37.5241 | 0.2943 | 57.4133 | 0.8076 |
-| Tree | 36.3655 | 0.2244 | 59.8527 | 1.4680 |
+| Tree | 36.3807 | 0.2662 | 60.0568 | 1.6220 |
 | SVM | 36.7257 | 0.1978 | 59.4584 | 1.0699 |
 | NeuralNet | 38.0790 | 0.9333 | 59.6930 | 3.6361 |
 
@@ -40,13 +40,13 @@
 
 | | NeuralNet | Decision_Tree |
 |---|---|---|
-| MAE | 36.3655 +/- 0.9333 | 36.7257 +/- 0.2244 |
-| Estatística | 3.2679 | / |
-| p-value     | 0.0823 | / |
+| MAE | 36.3807 +/- 0.9333 | 36.7257 +/- 0.2662 |
+| Estatística | 3.5689 | / |
+| p-value     | 0.0703 | / |
 | Resultado   | Não significativo | / |
 
 **Melhor modelo (regressão):** NeuralNet  
-A diferença não é estatisticamente significativa (p=0.0823 ≥ 0.05).  
+A diferença não é estatisticamente significativa (p=0.0703 ≥ 0.05).  
 Ambos os modelos são equivalentes: NeuralNet tem MAE ligeiramente inferior.
 
 ---
@@ -56,50 +56,50 @@ Ambos os modelos são equivalentes: NeuralNet tem MAE ligeiramente inferior.
 ### Métricas Globais (K-Fold CV)
 | Modelo | Accuracy | +/-Acc | Precision | +/-Prec | Recall | +/-Rec | F1 | +/-F1 |
 |--------|----------|------|-----------|-------|--------|------|----|-----|
-| Decision_Tree | 0.6136 | 0.0119 | 0.5987 | 0.0138 | 0.6136 | 0.0119 | 0.6038 | 0.0130 |
-| NeuralNet | 0.6534 | 0.0067 | 0.6229 | 0.0143 | 0.6534 | 0.0067 | 0.6169 | 0.0170 |
-| SVM | 0.6158 | 0.0041 | 0.5727 | 0.0192 | 0.6158 | 0.0041 | 0.5305 | 0.0064 |
-| KNN | 0.5916 | 0.0066 | 0.5611 | 0.0081 | 0.5916 | 0.0066 | 0.5679 | 0.0097 |
+| Decision_Tree | 0.5828 | 0.0159 | 0.5794 | 0.0149 | 0.5828 | 0.0159 | 0.5798 | 0.0158 |
+| NeuralNet | 0.6312 | 0.0107 | 0.6287 | 0.0078 | 0.6312 | 0.0107 | 0.6120 | 0.0113 |
+| SVM | 0.5916 | 0.0107 | 0.6295 | 0.0112 | 0.5916 | 0.0107 | 0.5171 | 0.0176 |
+| KNN | 0.5808 | 0.0143 | 0.5701 | 0.0129 | 0.5808 | 0.0143 | 0.5641 | 0.0166 |
 
 ### Métricas por Classe
 
-#### Decision_Tree  (Accuracy: 0.6136 +/- 0.0119)
+#### Decision_Tree  (Accuracy: 0.5828 +/- 0.0159)
 | Classe | Precision | +/-Prec | Recall | +/-Rec | F1 | +/-F1 |
 |--------|-----------|-------|--------|------|----|-----|
-| alto | 0.5835 | 0.0161 | 0.5471 | 0.0301 | 0.5645 | 0.0215 |
-| baixo | 0.7108 | 0.0107 | 0.7909 | 0.0165 | 0.7486 | 0.0074 |
-| medio | 0.3863 | 0.0318 | 0.3220 | 0.0335 | 0.3502 | 0.0280 |
-| GLOBAL (weighted) | 0.5602 | 0.0195 | 0.5533 | 0.0267 | 0.5544 | 0.0190 |
+| alto | 0.5687 | 0.0033 | 0.5070 | 0.0298 | 0.5357 | 0.0173 |
+| baixo | 0.4570 | 0.0072 | 0.4320 | 0.0399 | 0.4432 | 0.0209 |
+| medio | 0.6303 | 0.0200 | 0.6737 | 0.0188 | 0.6512 | 0.0183 |
+| GLOBAL (weighted) | 0.5520 | 0.0101 | 0.5376 | 0.0295 | 0.5434 | 0.0188 |
 
-#### NeuralNet  (Accuracy: 0.6534 +/- 0.0067)
+#### NeuralNet  (Accuracy: 0.6312 +/- 0.0107)
 | Classe | Precision | +/-Prec | Recall | +/-Rec | F1 | +/-F1 |
 |--------|-----------|-------|--------|------|----|-----|
-| alto | 0.6273 | 0.0508 | 0.5971 | 0.0460 | 0.6081 | 0.0108 |
-| baixo | 0.6965 | 0.0253 | 0.9008 | 0.0284 | 0.7847 | 0.0065 |
-| medio | 0.4670 | 0.0441 | 0.2079 | 0.0725 | 0.2836 | 0.0748 |
-| GLOBAL (weighted) | 0.5969 | 0.0401 | 0.5686 | 0.0490 | 0.5588 | 0.0307 |
+| alto | 0.6834 | 0.0501 | 0.5180 | 0.0631 | 0.5841 | 0.0295 |
+| baixo | 0.5406 | 0.0115 | 0.3173 | 0.1011 | 0.3904 | 0.0738 |
+| medio | 0.6365 | 0.0181 | 0.8008 | 0.0603 | 0.7076 | 0.0195 |
+| GLOBAL (weighted) | 0.6201 | 0.0266 | 0.5453 | 0.0748 | 0.5607 | 0.0410 |
 
-#### SVM  (Accuracy: 0.6158 +/- 0.0041)
+#### SVM  (Accuracy: 0.5916 +/- 0.0107)
 | Classe | Precision | +/-Prec | Recall | +/-Rec | F1 | +/-F1 |
 |--------|-----------|-------|--------|------|----|-----|
-| alto | 0.6227 | 0.0446 | 0.5270 | 0.0148 | 0.5703 | 0.0249 |
-| baixo | 0.6188 | 0.0157 | 0.9522 | 0.0142 | 0.7498 | 0.0084 |
-| medio | 0.4260 | 0.0748 | 0.0250 | 0.0020 | 0.0470 | 0.0030 |
-| GLOBAL (weighted) | 0.5558 | 0.0450 | 0.5014 | 0.0103 | 0.4557 | 0.0121 |
+| alto | 0.7215 | 0.0271 | 0.2044 | 0.0169 | 0.3178 | 0.0178 |
+| baixo | 0.6524 | 0.0281 | 0.1430 | 0.0359 | 0.2316 | 0.0456 |
+| medio | 0.5788 | 0.0123 | 0.9373 | 0.0189 | 0.7155 | 0.0096 |
+| GLOBAL (weighted) | 0.6509 | 0.0225 | 0.4282 | 0.0239 | 0.4216 | 0.0243 |
 
-#### KNN  (Accuracy: 0.5916 +/- 0.0066)
+#### KNN  (Accuracy: 0.5808 +/- 0.0143)
 | Classe | Precision | +/-Prec | Recall | +/-Rec | F1 | +/-F1 |
 |--------|-----------|-------|--------|------|----|-----|
-| alto | 0.5108 | 0.0184 | 0.5336 | 0.0275 | 0.5209 | 0.0033 |
-| baixo | 0.6815 | 0.0112 | 0.8085 | 0.0105 | 0.7394 | 0.0051 |
-| medio | 0.3672 | 0.0133 | 0.2119 | 0.0195 | 0.2680 | 0.0160 |
-| GLOBAL (weighted) | 0.5198 | 0.0143 | 0.5180 | 0.0192 | 0.5095 | 0.0081 |
+| alto | 0.5472 | 0.0263 | 0.3826 | 0.0297 | 0.4489 | 0.0150 |
+| baixo | 0.4937 | 0.0152 | 0.3460 | 0.0169 | 0.4065 | 0.0124 |
+| medio | 0.6091 | 0.0228 | 0.7599 | 0.0019 | 0.6760 | 0.0147 |
+| GLOBAL (weighted) | 0.5500 | 0.0214 | 0.4962 | 0.0162 | 0.5105 | 0.0140 |
 
 ### Melhor e Pior Modelo por Métrica
 | Métrica | Melhor | Pior |
 |---------|--------|------|
 | Accuracy | NeuralNet | KNN |
-| Precision | NeuralNet | KNN |
+| Precision | SVM | KNN |
 | Recall | NeuralNet | KNN |
 | F1-Score | NeuralNet | SVM |
 
@@ -108,18 +108,18 @@ Ambos os modelos são equivalentes: NeuralNet tem MAE ligeiramente inferior.
 #### Melhor: NeuralNet
 | | F1 (weighted) |
 |---|---|
-| Treino    | 0.6718 |
-| Validação | 0.6339 |
-| Gap       | -0.0379 |
+| Treino    | 0.6237 |
+| Validação | 0.5922 |
+| Gap       | -0.0315 |
 
 > Treino adequado: curvas convergem
 
 #### Pior: SVM
 | | F1 (weighted) |
 |---|---|
-| Treino    | 0.5333 |
-| Validação | 0.5287 |
-| Gap       | -0.0046 |
+| Treino    | 0.5189 |
+| Validação | 0.5152 |
+| Gap       | -0.0038 |
 
 > Treino adequado: curvas convergem
 
@@ -130,9 +130,9 @@ Ambos os modelos são equivalentes: NeuralNet tem MAE ligeiramente inferior.
 
 | | NeuralNet | Decision_Tree |
 |---|---|---|
-| F1          | 0.6169 +/- 0.0170 | 0.6038 +/- 0.0130 |
-| Estatística | 3.2679 | / |
-| p-value     | 0.0823 | / |
+| F1          | 0.6120 +/- 0.0113 | 0.5798 +/- 0.0158 |
+| Estatística | 3.5689 | / |
+| p-value     | 0.0703 | / |
 | Resultado   | Não significativo | / |
 
 **Melhor modelo (classificação):** N
