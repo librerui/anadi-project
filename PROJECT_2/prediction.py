@@ -1,23 +1,14 @@
-"""
-Painel de Gestao e Previsao de PTD - Dashboard Streamlit
-=========================================================
-Uses the regression model trained in main.ipynb to predict PFolga_PTD
-and derives the utilization class (utilizRede) from the prediction.
-"""
-
 import streamlit as st
 import joblib
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 
-# ── Page config ──────────────────────────────────────────────────────
 st.set_page_config(
     page_title="Painel PTD",
     layout="wide",
 )
 
-# ── Custom CSS ───────────────────────────────────────────────────────
 st.markdown("""
 <style>
     /* Global font */
@@ -52,7 +43,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ── Custom JS for Icons ────────────────────────────────────────────────
 import streamlit.components.v1 as components
 components.html("""
 <script>
@@ -149,7 +139,6 @@ _iconObs.observe(parentDoc.body, { childList: true, subtree: true });
 </script>
 """, height=0, width=0)
 
-# ── Constants ────────────────────────────────────────────────────────
 PROFILES = {
     "Perfil Leve":  "Perfil_Leve",
     "Perfil Medio": "Perfil_Médio",
@@ -179,7 +168,6 @@ CHARGER_TYPES = {
 DATA_PATH = "./data/PTD_level_dataset.xlsx"
 
 
-# ── Data & model loading ─────────────────────────────────────────────
 @st.cache_data
 def load_raw_data():
     """Load the PTD dataset and precompute encoders and thresholds."""
@@ -232,11 +220,9 @@ def derive_util_decimal(folga_kva, capacidade_kva):
     return max(0.0, min(1.0, 1.0 - folga_kva / capacidade_kva))
 
 
-# ── Load data ────────────────────────────────────────────────────────
 df_raw, le_distrito, le_concelho, q33, q66 = load_raw_data()
 
 
-# ── Sidebar ──────────────────────────────────────────────────────────
 with st.sidebar:
     st.title("Configuracao")
 
@@ -290,14 +276,12 @@ with st.sidebar:
     )
 
 
-# ── Main content ─────────────────────────────────────────────────────
 st.title("Painel de Gestao e Previsao de PTD")
 st.caption(
     "Avaliacao da capacidade de absorcao de pontos de carregamento de VEs "
     "em Postos de Transformacao da rede e-REDES."
 )
 
-# ── Input section ────────────────────────────────────────────────────
 TUDO = "Tudo"
 
 if mode == "Selecionar PTD Real":
@@ -586,7 +570,6 @@ else:
         concelho_enc = 0
 
 
-# ── Build feature vector & predict ───────────────────────────────────
 X_input = pd.DataFrame([{
     'Potência instalada [kVA]': potencia,
     'N_Clientes':               n_clientes,
@@ -620,7 +603,6 @@ folga_after_chargers = folga_avg - total_charger_load
 viable = folga_after_chargers > 0
 
 
-# ── Results ──────────────────────────────────────────────────────────
 st.markdown("---")
 st.header("Resultados da Previsao")
 
