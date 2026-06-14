@@ -71,8 +71,3 @@ jupyter notebook main.ipynb
 | `IP_data.xlsx` | [e-REDES Open Data](https://e-redes.opendatasoft.com) | Cadastro de iluminação pública |
 | `PTD_data.xlsx` | [e-REDES Open Data](https://e-redes.opendatasoft.com) | Postos de transformação de distribuição |
 | `densidade.csv` | [INE](https://www.ine.pt) | Densidade populacional, Censos 2021 |
-
-## Autores
-- Rui Santiago, Departamento de Engenharia Informática do ISEP, 3.º ano, 2.º semestre, 2025/2026
-- Rui Silva, Departamento de Engenharia Informática do ISEP, 3.º ano, 2.º semestre, 2025/2026
-- Tiago Barros, Departamento de Engenharia Informática do ISEP, 3.º ano, 2.º semestre, 2025/2026
