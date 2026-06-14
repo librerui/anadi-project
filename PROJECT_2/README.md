@@ -19,7 +19,6 @@ A análise segue detalhadamente o pipeline de ML:
 5. **Inferência Estatística**: Verificação da normalidade dos erros (Shapiro-Wilk) seguida do T-Test Pareado ou do teste não paramétrico Wilcoxon Signed-Rank para provar a validade temporal e prática dos melhores modelos de cada tipo metodológico.
 
 ## [Artigo científico](./article/conference_101719.pdf)
-*(Nota: O documento final é compilado a partir da base LaTeX na diretoria `./article/` - certifique-se da sua inclusão perante as submissões documentais)*
 
 ## Instalação e Execução
 
@@ -46,13 +45,19 @@ jupyter notebook main.ipynb
 
 Através da diretoria, poderá invocar o *pipeline* ou avaliar os perfis gravados localmente em `results/` e referenciar através do notebook acessório `compare.ipynb`.
 
+### Executar o Dashboard
+```bash
+make dashboard
+```
+
+O dashboard abre em `http://localhost:8501` e inclui as páginas:
+
+| Página | Conteúdo |
+|---|---|
+| Principal | Painel com inputs para visualizar o resultado dos modelos |
+
 ## Fontes de Dados
 
 | Dataset | Fonte | Descrição |
 |---|---|---|
 | `PTD_level_dataset.xlsx` | [e-REDES Open Data](https://e-redes.opendatasoft.com) | Dataset derivado da união do cadastro de iluminação pública e características dos Postos de Transformação (PTD) num patamar desdobrado geográfico pela e-REDES. |
-
-## Autores
-- Rui Santiago, Departamento de Engenharia Informática do ISEP, 3.º ano, 2.º semestre, 2025/2026
-- Rui Silva, Departamento de Engenharia Informática do ISEP, 3.º ano, 2.º semestre, 2025/2026
-- Tiago Barros, Departamento de Engenharia Informática do ISEP, 3.º ano, 2.º semestre, 2025/2026
