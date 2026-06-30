@@ -9,4 +9,6 @@
 *.gz
 *.out
 
+__pycache__
+
 */enunciado.md
