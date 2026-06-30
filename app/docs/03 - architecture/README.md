@@ -6,7 +6,7 @@ A solução está organizada em quatro componentes principais, isolados em pasta
 
 Cada componente é executável de forma independente (via `make` na sua própria pasta) ou orquestrado a partir do `Makefile` na raiz do repositório, que apenas delega para os `Makefile`s locais.
 
-```mermaid-js
+```mermaid
 flowchart LR
     subgraph Dados["Dados"]
         Dataset["Dataset PTD<br>(PROJECT_2/data)"]
@@ -52,7 +52,7 @@ Pipeline responsável por treinar e avaliar os modelos de regressão e classific
 
 Orquestra o treino de ponta a ponta: carrega o dataset, prepara as features (via `feature_engineering.py`), treina os candidatos de cada família de modelo (Regressão Linear, Árvore, SVM, Rede Neuronal para regressão; Árvore de Decisão, Rede Neuronal, SVM e KNN para classificação) com validação cruzada (`KFold`), selecciona o melhor candidato por família com base nas métricas obtidas, reajusta os modelos finais ao dataset completo, e grava os artefactos (modelos, *scaler*, *encoders*, métricas e curvas de perda) em `models/<perfil>/<versão>/`.
 
-```mermaid-js
+```mermaid
 sequenceDiagram
     actor CLI as "CLI<br>(python -m training)"
     participant Main as "__init__.main()"
@@ -122,7 +122,7 @@ A API é servida em `http://localhost:8000/api/v1`. A documentação interativa 
 
 ### Arquitectura
 
-```mermaid-js
+```mermaid
 flowchart LR
     subgraph service["service"]
         Main["main.py"]
