@@ -1,0 +1,8 @@
+{
+    "name": "Perfil Leve",
+    "sample_cv": 5000, 
+    "sample_loss": 1000, 
+    "sample_lc": 5000,
+    "nn_max_iter": 50,
+    "kfold_splits": 3
+}

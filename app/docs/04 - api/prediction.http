@@ -1,0 +1,88 @@
+### Predict using Decision Tree (classification)
+POST http://localhost:8000/api/v1/predict
+Content-Type: application/json
+
+{
+  "profile": "leve",
+  "version": "20260630195806",
+  "task": "classification",
+  "model_name": "Decision_Tree",
+  "features": {
+    "Potência instalada [kVA]": 15.5,
+    "P_IP_Total": 123.4,
+    "P_IP_Inef": 56.7,
+    "LED_Ratio": 0.8,
+    "N_Luminarias": 50,
+    "N_Lampadas": 100,
+    "Cap_per_Cliente": 2.5,
+    "Distrito_enc": 3,
+    "Concelho_enc": 5,
+    "N_Clientes": 4
+  }
+}
+
+### Predict using Neural Network (classification)
+POST http://localhost:8000/api/v1/predict
+Content-Type: application/json
+
+{
+  "profile": "leve",
+  "task": "classification",
+  "model_name": "NeuralNet",
+  "features": {
+    "Potência instalada [kVA]": 20.0,
+    "P_IP_Total": 150.0,
+    "P_IP_Inef": 70.0,
+    "LED_Ratio": 0.9,
+    "N_Luminarias": 60,
+    "N_Lampadas": 120,
+    "Cap_per_Cliente": 3.0,
+    "Distrito_enc": 1,
+    "Concelho_enc": 2,
+    "N_Clientes": 6
+  }
+}
+
+### Predict using Linear Regression (regression)
+POST http://localhost:8000/api/v1/predict
+Content-Type: application/json
+
+{
+  "profile": "leve",
+  "task": "regression",
+  "model_name": "Linear",
+  "features": {
+    "Potência instalada [kVA]": 10.0,
+    "P_IP_Total": 100.0,
+    "P_IP_Inef": 40.0,
+    "LED_Ratio": 0.5,
+    "N_Luminarias": 30,
+    "N_Lampadas": 60,
+    "Cap_per_Cliente": 1.8,
+    "Distrito_enc": 2,
+    "Concelho_enc": 4,
+    "N_Clientes": 3
+  }
+}
+
+### Predict using SVM (classification) - without version (uses latest)
+POST http://localhost:8000/api/v1/predict
+Content-Type: application/json
+
+{
+  "profile": "leve",
+  "task": "classification",
+  "model_name": "SVM",
+  "features": {
+    "Potência instalada [kVA]": 12.0,
+    "P_IP_Total": 110.0,
+    "P_IP_Inef": 48.0,
+    "LED_Ratio": 0.7,
+    "N_Luminarias": 40,
+    "N_Lampadas": 80,
+    "Cap_per_Cliente": 2.0,
+    "Distrito_enc": 4,
+    "Concelho_enc": 6,
+    "N_Clientes": 5
+  }
+}

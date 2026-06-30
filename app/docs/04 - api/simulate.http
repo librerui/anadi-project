@@ -1,0 +1,52 @@
+### Monte Carlo Simulation with Decision Tree
+POST http://localhost:8000/api/v1/simulate
+Content-Type: application/json
+
+{
+  "profile": "leve",
+  "version": "20260630195806",
+  "task": "classification",
+  "model_name": "Decision_Tree",
+  "features": {
+    "Potência instalada [kVA]": 15.5,
+    "P_IP_Total": 123.4,
+    "P_IP_Inef": 56.7,
+    "LED_Ratio": 0.8,
+    "N_Luminarias": 50,
+    "N_Lampadas": 100,
+    "Cap_per_Cliente": 2.5,
+    "Distrito_enc": 3,
+    "Concelho_enc": 5,
+    "N_Clientes": 4
+  },
+  "iterations": 1000,
+  "noise_scale": 0.1,
+  "overload_class": "alto",
+  "seed": 42
+}
+
+### Monte Carlo Simulation with Neural Network (higher noise, different overload class)
+POST http://localhost:8000/api/v1/simulate
+Content-Type: application/json
+
+{
+  "profile": "leve",
+  "task": "classification",
+  "model_name": "NeuralNet",
+  "features": {
+    "Potência instalada [kVA]": 20.0,
+    "P_IP_Total": 150.0,
+    "P_IP_Inef": 70.0,
+    "LED_Ratio": 0.9,
+    "N_Luminarias": 60,
+    "N_Lampadas": 120,
+    "Cap_per_Cliente": 3.0,
+    "Distrito_enc": 1,
+    "Concelho_enc": 2,
+    "N_Clientes": 6
+  },
+  "iterations": 2000,
+  "noise_scale": 0.2,
+  "overload_class": "medio",
+  "seed": 123
+}

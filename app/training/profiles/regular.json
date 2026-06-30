@@ -1,0 +1,8 @@
+{
+    "name": "Perfil Médio",
+    "sample_cv": 15000, 
+    "sample_loss": 5000, 
+    "sample_lc": 15000,
+    "nn_max_iter": 150, 
+    "kfold_splits": 5
+}

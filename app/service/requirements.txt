@@ -1,0 +1,8 @@
+# Framework and API
+fastapi>=0.100.0
+uvicorn[standard]>=0.23.0   # optional, for running the server
+
+# Data and validation
+pydantic>=2.0.0
+pandas>=2.0.0
+numpy>=1.24.0
