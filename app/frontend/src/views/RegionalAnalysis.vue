@@ -25,7 +25,14 @@
           </div>
           <div style="display: flex; flex-direction: column; gap: 0.25rem; min-width: 0;">
             <label for="model" style="font-weight: 500;">{{ $t('regional.model') }}</label>
-            <Dropdown id="model" v-model="form.model_name" :options="regressionModels" style="width: 100%;" />
+            <Dropdown id="model" v-model="form.model_name" :options="regressionModels" optionLabel="label" optionValue="value" style="width: 100%;">
+              <template #option="slotProps">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <span>{{ slotProps.option.label }}</span>
+                  <Tag v-if="slotProps.option.recommended" :value="$t('common.recommended')" severity="success" style="font-size: 0.7rem;" />
+                </div>
+              </template>
+            </Dropdown>
           </div>
         </div>
       </template>
@@ -351,22 +358,29 @@ import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import PieChart from '@/components/PieChart.vue'
 import ChargerModelPicker from '@/components/ChargerModelPicker.vue'
-import { predict, listPTDs } from '@/api/endpoints'
+import { predict } from '@/api/endpoints'
 import type { PredictionResponse, PTDBase } from '@/types'
 import { getChargerModel, type ChargerModel } from '@/data/chargerModels'
+import { usePTDCacheStore } from '@/stores/ptdCacheStore'
 import L from 'leaflet'
 
 const { t } = useI18n()
 const toast = useToast()
+const ptdCache = usePTDCacheStore()
 
 const profiles = ['leve', 'regular', 'pesado']
-const regressionModels = ['Linear', 'Tree', 'SVM', 'NeuralNet']
+const regressionModels = [
+  { label: 'NeuralNet', value: 'NeuralNet', recommended: true },
+  { label: 'Tree', value: 'Tree', recommended: true },
+  { label: 'Linear', value: 'Linear' },
+  { label: 'SVM', value: 'SVM' },
+]
 
 // ── Estado do formulário ──
 const form = reactive({
   profile: 'leve',
   version: '',
-  model_name: 'Linear' as string,
+  model_name: 'NeuralNet' as string,
   charger_model_id: 'wallbox-pulsar-plus-7_4' as string,
   charger_power: 7.4,
   n_chargers: 2,
@@ -378,8 +392,6 @@ const selectedDistrito = ref<string | null>(null)
 const selectedConcelho = ref<string | null>(null)
 const districts = ref<string[]>([])
 const concelhos = ref<string[]>([])
-const ptdCache = ref<PTDBase[]>([])
-const districtMunicipalities = ref<Record<string, string[]>>({})
 
 // ── Estado da análise ──
 const analysing = ref(false)
@@ -423,14 +435,7 @@ const analysisLabel = computed(() => {
 })
 
 const regionPTDs = computed(() => {
-  let filtered = ptdCache.value
-  if (selectedDistrito.value) {
-    filtered = filtered.filter(p => p.distrito === selectedDistrito.value)
-  }
-  if (selectedConcelho.value) {
-    filtered = filtered.filter(p => p.concelho === selectedConcelho.value)
-  }
-  return filtered
+  return ptdCache.getPTDsByRegion(selectedDistrito.value, selectedConcelho.value)
 })
 
 const summaryCounts = computed(() => {
@@ -504,34 +509,15 @@ const classifyPTD = (prediction: number, capacity: number, totalLoad: number): '
   return 'baixo'
 }
 
-// ── Carregar PTDs ──
-const buildDistrictCache = (items: PTDBase[]) => {
-  const districtMap = new Map<string, Set<string>>()
-  items.forEach((item) => {
-    const district = item.distrito || ''
-    const municipality = item.concelho || ''
-    if (!districtMap.has(district)) districtMap.set(district, new Set())
-    districtMap.get(district)?.add(municipality)
-  })
-
-  districts.value = Array.from(districtMap.keys()).sort()
-  districtMunicipalities.value = Object.fromEntries(
-    Array.from(districtMap.entries()).map(([district, municipalities]) => [
-      district,
-      Array.from(municipalities).sort(),
-    ])
-  )
-}
-
+// ── Carregar PTDs via store ──
 const loadPTDs = async () => {
   try {
-    if (!ptdCache.value.length) {
-      const response = await listPTDs({})
-      ptdCache.value = response.data.items
-      buildDistrictCache(ptdCache.value)
-    }
+    // Ensure cache is loaded (store handles caching internally)
+    await ptdCache.fetch()
+    // Build dropdown options from store
+    districts.value = ptdCache.getDistricts()
     if (selectedDistrito.value) {
-      concelhos.value = districtMunicipalities.value[selectedDistrito.value] || []
+      concelhos.value = ptdCache.getConcelhos(selectedDistrito.value)
     }
   } catch (error: any) {
     toast.add({
@@ -546,7 +532,7 @@ const loadPTDs = async () => {
 const onDistritoChange = () => {
   selectedConcelho.value = null
   if (selectedDistrito.value) {
-    concelhos.value = districtMunicipalities.value[selectedDistrito.value] || []
+    concelhos.value = ptdCache.getConcelhos(selectedDistrito.value)
   } else {
     concelhos.value = []
   }

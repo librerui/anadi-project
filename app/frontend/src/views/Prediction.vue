@@ -64,7 +64,14 @@
             </template>
             <template #content>
               <div style="display: flex; flex-direction: column; gap: 0.25rem; max-width: 320px; min-width: 0;">
-                <Dropdown id="model_classification" v-model="form.model_name" :options="modelOptions.classification" :placeholder="t('prediction.select_model')" style="width: 100%;" />
+                <Dropdown id="model_classification" v-model="form.model_name" :options="modelOptions.classification" optionLabel="label" optionValue="value" :placeholder="t('prediction.select_model')" style="width: 100%;">
+                  <template #option="slotProps">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                      <span>{{ slotProps.option.label }}</span>
+                      <Tag v-if="slotProps.option.recommended" :value="$t('common.recommended')" severity="success" style="font-size: 0.7rem;" />
+                    </div>
+                  </template>
+                </Dropdown>
               </div>
             </template>
           </Card>
@@ -182,7 +189,14 @@
             </template>
             <template #content>
               <div style="display: flex; flex-direction: column; gap: 0.25rem; max-width: 320px; min-width: 0;">
-                <Dropdown id="model_regression" v-model="form.model_name" :options="modelOptions.regression" :placeholder="t('prediction.select_model')" style="width: 100%;" />
+                <Dropdown id="model_regression" v-model="form.model_name" :options="modelOptions.regression" optionLabel="label" optionValue="value" :placeholder="t('prediction.select_model')" style="width: 100%;">
+                  <template #option="slotProps">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                      <span>{{ slotProps.option.label }}</span>
+                      <Tag v-if="slotProps.option.recommended" :value="$t('common.recommended')" severity="success" style="font-size: 0.7rem;" />
+                    </div>
+                  </template>
+                </Dropdown>
               </div>
             </template>
           </Card>
@@ -314,6 +328,7 @@
 
 <script setup lang="ts">
 import { usePredictionStore } from '@/stores/predictionStore'
+import { usePTDCacheStore } from '@/stores/ptdCacheStore'
 import { reactive, ref, computed, nextTick } from 'vue'
 import type { Ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -337,15 +352,26 @@ import type { PredictionResponse, PTDBase } from '@/types'
 import { getChargerModel, type ChargerModel } from '@/data/chargerModels'
 
 const predictionStore = usePredictionStore()
+const ptdCache = usePTDCacheStore()
 
 const toast = useToast()
 const { t } = useI18n()
 
 const profiles = ['leve', 'regular', 'pesado']
 
-const modelOptions: Record<'classification' | 'regression', string[]> = {
-  classification: ['Decision_Tree', 'NeuralNet', 'SVM', 'KNN'],
-  regression: ['Linear', 'Tree', 'SVM', 'NeuralNet'],
+const modelOptions: Record<'classification' | 'regression', { label: string; value: string; recommended?: boolean }[]> = {
+  classification: [
+    { label: 'NeuralNet', value: 'NeuralNet', recommended: true },
+    { label: 'Decision_Tree', value: 'Decision_Tree', recommended: true },
+    { label: 'SVM', value: 'SVM' },
+    { label: 'KNN', value: 'KNN' },
+  ],
+  regression: [
+    { label: 'NeuralNet', value: 'NeuralNet', recommended: true },
+    { label: 'Tree', value: 'Tree', recommended: true },
+    { label: 'Linear', value: 'Linear' },
+    { label: 'SVM', value: 'SVM' },
+  ],
 }
 
 const featureUnitKeys: Record<string, string> = {
@@ -367,7 +393,7 @@ const featureUnit = (key: string) => {
 const form = reactive({
   profile: 'leve',
   version: '',
-  model_name: 'Decision_Tree',
+  model_name: 'NeuralNet',
   distrito: null as string | null,
   concelho: null as string | null,
   ptd_id: null as string | null,
@@ -412,7 +438,6 @@ const submittingRegression = ref(false)
 // PTD selector
 const selectedPTD = ref<PTDBase | null>(null)
 
-// NEW: Handle encoded values when distrito/concelho changes
 const onEncodedChange = (values: { distrito_enc: number | null; concelho_enc: number | null }) => {
   if (values.distrito_enc != null) {
     form.features['Distrito_enc'] = values.distrito_enc
@@ -445,28 +470,6 @@ const primaryProbability = computed(() => {
   return resultClassification.value.raw_scores[resultClassification.value.prediction] ?? null
 })
 
-const getBarColor = (score: number) => {
-  if (score < 0.3) return 'var(--p-green-500)'
-  if (score < 0.7) return 'var(--p-orange-500)'
-  return 'var(--p-red-500)'
-}
-
-const normalizePTD = (ptd: PTDBase) => {
-  form.distrito = ptd.distrito
-  form.concelho = ptd.concelho
-  form.ptd_id = ptd.codigo_instalacao
-  form.features['Potência instalada [kVA]'] = ptd.potencia_instalada
-  form.features['P_IP_Total'] = ptd.p_ip_total ?? 0
-  form.features['P_IP_Inef'] = ptd.p_ip_inef ?? 0
-  form.features['LED_Ratio'] = ptd.led_ratio ?? 0
-  form.features['N_Luminarias'] = ptd.n_luminarias ?? 0
-  form.features['N_Lampadas'] = ptd.n_lampadas ?? 0
-  form.features['Cap_per_Cliente'] = ptd.cap_per_cliente ?? 0
-  form.features['N_Clientes'] = ptd.n_clientes ?? 0
-  if (ptd.distrito_enc != null) form.features['Distrito_enc'] = ptd.distrito_enc
-  if (ptd.concelho_enc != null) form.features['Concelho_enc'] = ptd.concelho_enc
-}
-
 const scrollToResults = (refEl: Ref<HTMLElement | null>) => {
   if (refEl.value) {
     refEl.value.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -485,6 +488,22 @@ const classColor = (value: string) => {
   if (value === 'medio' || value === 'medium') return '#f97316'
   if (value === 'baixo' || value === 'low') return '#22c55e'
   return '#6b7280'
+}
+
+const normalizePTD = (ptd: PTDBase) => {
+  form.distrito = ptd.distrito
+  form.concelho = ptd.concelho
+  form.ptd_id = ptd.codigo_instalacao
+  form.features['Potência instalada [kVA]'] = ptd.potencia_instalada
+  form.features['P_IP_Total'] = ptd.p_ip_total ?? 0
+  form.features['P_IP_Inef'] = ptd.p_ip_inef ?? 0
+  form.features['LED_Ratio'] = ptd.led_ratio ?? 0
+  form.features['N_Luminarias'] = ptd.n_luminarias ?? 0
+  form.features['N_Lampadas'] = ptd.n_lampadas ?? 0
+  form.features['Cap_per_Cliente'] = ptd.cap_per_cliente ?? 0
+  form.features['N_Clientes'] = ptd.n_clientes ?? 0
+  if (ptd.distrito_enc != null) form.features['Distrito_enc'] = ptd.distrito_enc
+  if (ptd.concelho_enc != null) form.features['Concelho_enc'] = ptd.concelho_enc
 }
 
 const onSubmit = async (task: 'classification' | 'regression') => {

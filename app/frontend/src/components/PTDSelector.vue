@@ -316,20 +316,67 @@ const applyCachedPTDFilters = () => {
   }
 }
 
+const CACHE_KEY = 'ptd_cache'
+const CACHE_TIMESTAMP_KEY = 'ptd_cache_timestamp'
+const CACHE_TTL_MS = 1000 * 60 * 60 * 24 // 24 horas
+
+const loadFromCache = (): PTDBase[] | null => {
+  try {
+    const cached = localStorage.getItem(CACHE_KEY)
+    const timestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY)
+    if (!cached || !timestamp) return null
+    const age = Date.now() - parseInt(timestamp, 10)
+    if (age > CACHE_TTL_MS) {
+      localStorage.removeItem(CACHE_KEY)
+      localStorage.removeItem(CACHE_TIMESTAMP_KEY)
+      return null
+    }
+    return JSON.parse(cached) as PTDBase[]
+  } catch {
+    return null
+  }
+}
+
+const saveToCache = (items: PTDBase[]) => {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify(items))
+    localStorage.setItem(CACHE_TIMESTAMP_KEY, String(Date.now()))
+  } catch (e) {
+    console.warn('Failed to cache PTDs:', e)
+  }
+}
+
 const loadPTDs = async () => {
   loadingPTDs.value = true
   try {
     if (!ptdCache.value.length) {
-      const response = await listPTDs({})
-      ptdCache.value = response.data.items
-      buildDistrictCache(ptdCache.value)
+      // Tentar carregar do cache primeiro
+      const cached = loadFromCache()
+      if (cached && cached.length > 0) {
+        ptdCache.value = cached
+        buildDistrictCache(ptdCache.value)
+        applyCachedPTDFilters()
+        // Refresh em background
+        fetchPTDs().catch(() => {})
+        return
+      }
+      await fetchPTDs()
+    } else {
+      applyCachedPTDFilters()
     }
-    applyCachedPTDFilters()
   } catch (error: any) {
     console.error('Failed to load PTDs:', error)
   } finally {
     loadingPTDs.value = false
   }
+}
+
+const fetchPTDs = async () => {
+  const response = await listPTDs({})
+  ptdCache.value = response.data.items
+  saveToCache(ptdCache.value)
+  buildDistrictCache(ptdCache.value)
+  applyCachedPTDFilters()
 }
 
 const onDistritoChange = async () => {

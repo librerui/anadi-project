@@ -285,6 +285,8 @@
     "required": "obrigatório",
     "risk_low": "Baixo",
     "risk_medium": "Médio",
-    "risk_high": "Alto"
+    "risk_high": "Alto",
+    "recommended": "Recomendado",
+    "not_recommended": "Não Recomendado"
   }
 }

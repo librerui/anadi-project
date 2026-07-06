@@ -26,7 +26,14 @@
             </div>
             <div style="display: flex; flex-direction: column; gap: 0.25rem; min-width: 0;">
               <label for="model" style="font-weight: 500;">{{ $t('simulation.model') }}</label>
-              <Dropdown id="model" v-model="form.model_name" :options="classificationModels" style="width: 100%;" />
+              <Dropdown id="model" v-model="form.model_name" :options="classificationModels" optionLabel="label" optionValue="value" style="width: 100%;">
+                <template #option="slotProps">
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span>{{ slotProps.option.label }}</span>
+                    <Tag v-if="slotProps.option.recommended" :value="$t('common.recommended')" severity="success" style="font-size: 0.7rem;" />
+                  </div>
+                </template>
+              </Dropdown>
             </div>
           </div>
         </template>
@@ -190,29 +197,25 @@
           </div>
 
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; align-items: start;">
-            <div>
-              <h4 style="margin-bottom: 0.75rem; text-align: center;">
-                {{ $t('simulation.detection_rate') }}: {{ selectedScenarioLabel }}
-              </h4>
+            <!-- Detection Rate: Quão bem o modelo identifica o cenário escolhido -->
+            <div style="padding: 1rem; border-radius: 0.75rem; border: 1px solid var(--p-surface-200);">
+              <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+                <i class="pi pi-search" style="color: var(--p-primary-color);"></i>
+                <h4 style="margin: 0; text-align: center;">
+                  {{ $t('simulation.detection_rate') }}: {{ selectedScenarioLabel }}
+                </h4>
+              </div>
               <GaugeChart
                 :value="selectedClassProbability"
                 :label="$t('simulation.probability_detected')"
                 :thresholds="{ low: 0.3, medium: 0.7 }"
               />
-              <p style="text-align: center; font-size: 0.875rem; color: var(--p-text-muted-color); margin-top: 0.5rem;">
-                {{ $t('simulation.detection_rate_hint') }}
+              <p style="text-align: center; font-size: 0.8rem; color: var(--p-text-muted-color); margin-top: 0.5rem;">
+                {{ $t('simulation.detection_rate_desc') }}
               </p>
             </div>
 
-            <div>
-              <h4 style="margin-bottom: 0.75rem; text-align: center;">{{ $t('simulation.overload_probability') }}</h4>
-              <GaugeChart
-                :value="result.overload_probability"
-                :label="overloadClassLabel(result.overload_class)"
-                :thresholds="{ low: 0.3, medium: 0.7 }"
-              />
-            </div>
-
+            <!-- Distribution Pie Chart -->
             <div v-if="result.distribution">
               <h4 style="margin-bottom: 0.75rem; text-align: center;">{{ $t('simulation.distribution') }}</h4>
               <div style="display: flex; justify-content: center; background: var(--p-surface-100); border-radius: 0.5rem; padding: 1rem;">
@@ -221,6 +224,21 @@
                 </div>
               </div>
             </div>
+          </div>
+
+          <!-- Overload Probability Summary -->
+          <div style="margin-top: 1.5rem; padding: 1rem; border-radius: 0.5rem; background: var(--p-surface-100); display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+            <i class="pi pi-bolt" style="color: var(--p-orange-500); font-size: 1.25rem;"></i>
+            <div>
+              <span style="font-size: 0.875rem; color: var(--p-text-muted-color);">{{ $t('simulation.overload_probability') }}:</span>
+              <span style="font-weight: 700; margin-left: 0.5rem;" :style="{ color: result.overload_probability >= 0.7 ? '#ef4444' : result.overload_probability >= 0.3 ? '#f97316' : '#22c55e' }">
+                {{ (result.overload_probability * 100).toFixed(1) }}%
+              </span>
+            </div>
+            <Tag :value="overloadClassLabel(result.overload_class)" :severity="classSeverity(result.overload_class)" style="font-size: 0.8rem;" />
+            <span style="font-size: 0.8rem; color: var(--p-text-muted-color); margin-left: auto;">
+              {{ $t('simulation.overload_probability_desc') }}
+            </span>
           </div>
 
           <div v-if="result.distribution" style="margin-top: 1.5rem;">
@@ -294,7 +312,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, computed, nextTick } from 'vue'
+import { reactive, ref, computed, nextTick, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'primevue/usetoast'
 import Dropdown from 'primevue/dropdown'
@@ -312,14 +330,21 @@ import PTDSelector from '@/components/PTDSelector.vue'
 import { simulate } from '@/api/endpoints'
 import type { SimulationResponse, PTDBase } from '@/types'
 import { useSimulationStore } from '@/stores/simulationStore'
+import { usePTDCacheStore } from '@/stores/ptdCacheStore'
 
 const simulationStore = useSimulationStore()
+const ptdCache = usePTDCacheStore()
 
 const toast = useToast()
 const { t } = useI18n()
 
 const profiles = ['leve', 'regular', 'pesado']
-const classificationModels = ['Decision_Tree', 'NeuralNet', 'SVM', 'KNN']
+const classificationModels = [
+  { label: 'NeuralNet', value: 'NeuralNet', recommended: true },
+  { label: 'Decision_Tree', value: 'Decision_Tree', recommended: true },
+  { label: 'SVM', value: 'SVM' },
+  { label: 'KNN', value: 'KNN' },
+]
 
 const overloadClasses = computed(() => [
   { 
@@ -397,7 +422,7 @@ const onPTDSelected = (ptd: PTDBase) => {
 const form = reactive({
   profile: 'leve',
   version: '',
-  model_name: 'Decision_Tree',
+  model_name: 'NeuralNet',
   features: {
     'Potência instalada [kVA]': 15.5,
     'P_IP_Total': 123.4,
@@ -480,30 +505,6 @@ const dominantClass = computed(() => {
   return overloadClassLabel(best[0])
 })
 
-const riskSeverity = computed(() => {
-  if (!result.value) return 'info'
-  const p = result.value.overload_probability
-  if (p < 0.3) return 'success'
-  if (p < 0.7) return 'warn'
-  return 'error'
-})
-
-const riskIcon = computed(() => {
-  if (!result.value) return 'pi pi-info-circle'
-  const p = result.value.overload_probability
-  if (p < 0.3) return 'pi pi-check-circle'
-  if (p < 0.7) return 'pi pi-exclamation-triangle'
-  return 'pi pi-times-circle'
-})
-
-const riskBannerText = computed(() => {
-  if (!result.value) return ''
-  const p = result.value.overload_probability
-  if (p < 0.3) return t('simulation.risk_banner_low')
-  if (p < 0.7) return t('simulation.risk_banner_medium')
-  return t('simulation.risk_banner_high')
-})
-
 const distributionStats = computed(() => {
   const values = result.value?.distribution ? Object.values(result.value.distribution) : []
   if (!values.length) return { mean: 0, std: 0, min: 0, max: 0 }
@@ -583,4 +584,9 @@ const onSubmit = async () => {
     submitting.value = false
   }
 }
+
+// Preload PTD cache on mount so it's ready when user opens the selector
+onMounted(() => {
+  ptdCache.fetch().catch(() => {})
+})
 </script>
