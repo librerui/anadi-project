@@ -45,174 +45,121 @@
           <Button :label="t('nav.health')" icon="pi pi-arrow-right" iconPos="right" severity="success" style="width: 100%;" />
         </template>
       </Card>
+
+      <Card @click="goTo('/regional')" style="cursor: pointer;">
+        <template #title>
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <i class="pi pi-map" style="font-size: 1.5rem;"></i>
+            <span>{{ t('nav.regional') }}</span>
+          </div>
+        </template>
+        <template #content>
+          <p style="color: var(--p-text-muted-color); margin-bottom: 1rem;">{{ t('dashboard.cards.regional') }}</p>
+          <Button :label="t('nav.regional')" icon="pi pi-arrow-right" iconPos="right" severity="info" style="width: 100%;" />
+        </template>
+      </Card>
     </div>
 
-    <!-- Quick Stats -->
-    <Card style="margin-bottom: 2rem;">
-      <template #title>
-        <div style="display: flex; align-items: center; gap: 0.5rem;">
-          <i class="pi pi-chart-bar"></i>
-          <span>{{ t('dashboard.quick_info') }}</span>
-        </div>
-      </template>
-      <template #content>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+    <!-- Quick Stats + Recent Activity side by side, compact -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 1rem; align-items: start;">
 
-          <!-- System Status -->
-          <div style="
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1.5rem;
-            border-radius: 0.75rem;
-            background: var(--p-surface-100);
-            border-top: 4px solid var(--p-primary-color);
-            text-align: center;
-          ">
+      <!-- Quick Stats -->
+      <Card :pt="{ body: { style: 'padding: 0.85rem 1rem;' } }">
+        <template #title>
+          <div style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.95rem;">
+            <i class="pi pi-chart-bar" style="font-size: 0.9rem;"></i>
+            <span>{{ t('dashboard.quick_info') }}</span>
+          </div>
+        </template>
+        <template #content>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 0.5rem;">
+
+            <!-- System Status -->
             <div style="
-              width: 56px;
-              height: 56px;
-              border-radius: 50%;
-              background: var(--p-primary-color);
-              display: flex;
-              align-items: center;
-              justify-content: center;
+              padding: 0.5rem 0.6rem;
+              border-radius: 0.4rem;
+              background: var(--p-surface-100);
+              border-left: 3px solid var(--p-primary-color);
             ">
-              <i class="pi pi-server" style="color: white; font-size: 1.5rem;"></i>
+              <p style="font-size: 0.7rem; color: var(--p-text-muted-color); margin-bottom: 0.25rem;">{{ t('dashboard.stats.system_status') }}</p>
+              <Tag :severity="systemStatus ? 'success' : 'danger'" :value="systemStatus ? 'UP' : 'DOWN'" style="font-size: 0.75rem;" />
             </div>
-            <div>
-              <p style="font-size: 0.875rem; color: var(--p-text-muted-color); margin-bottom: 0.5rem;">{{ t('dashboard.stats.system_status') }}</p>
-              <Tag :severity="systemStatus ? 'success' : 'danger'" :value="systemStatus ? 'UP' : 'DOWN'" style="font-size: 1rem; padding: 0.4rem 1rem;" />
-            </div>
-          </div>
 
-          <!-- Predictions Today -->
-          <div style="
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1.5rem;
-            border-radius: 0.75rem;
-            background: var(--p-surface-100);
-            border-top: 4px solid var(--p-orange-500);
-            text-align: center;
-          ">
+            <!-- Predictions Today -->
             <div style="
-              width: 56px;
-              height: 56px;
-              border-radius: 50%;
-              background: var(--p-orange-500);
-              display: flex;
-              align-items: center;
-              justify-content: center;
+              padding: 0.5rem 0.6rem;
+              border-radius: 0.4rem;
+              background: var(--p-surface-100);
+              border-left: 3px solid var(--p-orange-500);
             ">
-              <i class="pi pi-chart-line" style="color: white; font-size: 1.5rem;"></i>
+              <p style="font-size: 0.7rem; color: var(--p-text-muted-color); margin-bottom: 0.15rem;">{{ t('dashboard.stats.predictions_today') }}</p>
+              <p style="font-size: 1.05rem; font-weight: 700; color: var(--p-orange-500);">{{ dashboardStore.predictionsToday }}</p>
             </div>
-            <div>
-              <p style="font-size: 0.875rem; color: var(--p-text-muted-color); margin-bottom: 0.25rem;">{{ t('dashboard.stats.predictions_today') }}</p>
-              <p style="font-size: 2rem; font-weight: bold; color: var(--p-orange-500);">{{ dashboardStore.predictionsToday }}</p>
-            </div>
-          </div>
 
-          <!-- Simulations Today -->
-          <div style="
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1.5rem;
-            border-radius: 0.75rem;
-            background: var(--p-surface-100);
-            border-top: 4px solid var(--p-green-500);
-            text-align: center;
-          ">
+            <!-- Simulations Today -->
             <div style="
-              width: 56px;
-              height: 56px;
-              border-radius: 50%;
-              background: var(--p-green-500);
-              display: flex;
-              align-items: center;
-              justify-content: center;
+              padding: 0.5rem 0.6rem;
+              border-radius: 0.4rem;
+              background: var(--p-surface-100);
+              border-left: 3px solid var(--p-green-500);
             ">
-              <i class="pi pi-cog" style="color: white; font-size: 1.5rem;"></i>
+              <p style="font-size: 0.7rem; color: var(--p-text-muted-color); margin-bottom: 0.15rem;">{{ t('dashboard.stats.simulations_run') }}</p>
+              <p style="font-size: 1.05rem; font-weight: 700; color: var(--p-green-500);">{{ dashboardStore.simulationsToday }}</p>
             </div>
-            <div>
-              <p style="font-size: 0.875rem; color: var(--p-text-muted-color); margin-bottom: 0.25rem;">{{ t('dashboard.stats.simulations_run') }}</p>
-              <p style="font-size: 2rem; font-weight: bold; color: var(--p-green-500);">{{ dashboardStore.simulationsToday }}</p>
-            </div>
-          </div>
 
-          <!-- Models Loaded -->
-          <div style="
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1.5rem;
-            border-radius: 0.75rem;
-            background: var(--p-surface-100);
-            border-top: 4px solid var(--p-purple-500);
-            text-align: center;
-          ">
+            <!-- Models Loaded -->
             <div style="
-              width: 56px;
-              height: 56px;
-              border-radius: 50%;
-              background: var(--p-purple-500);
-              display: flex;
-              align-items: center;
-              justify-content: center;
+              padding: 0.5rem 0.6rem;
+              border-radius: 0.4rem;
+              background: var(--p-surface-100);
+              border-left: 3px solid var(--p-purple-500);
             ">
-              <i class="pi pi-box" style="color: white; font-size: 1.5rem;"></i>
+              <p style="font-size: 0.7rem; color: var(--p-text-muted-color); margin-bottom: 0.15rem;">{{ t('dashboard.stats.models_loaded') }}</p>
+              <p style="font-size: 1.05rem; font-weight: 700; color: var(--p-purple-500);">{{ dashboardStore.modelsLoaded }}</p>
             </div>
-            <div>
-              <p style="font-size: 0.875rem; color: var(--p-text-muted-color); margin-bottom: 0.25rem;">{{ t('dashboard.stats.models_loaded') }}</p>
-              <p style="font-size: 2rem; font-weight: bold; color: var(--p-purple-500);">{{ dashboardStore.modelsLoaded }}</p>
+
+          </div>
+        </template>
+      </Card>
+
+      <!-- Recent Activity -->
+      <Card :pt="{ body: { style: 'padding: 0.85rem 1rem;' } }">
+        <template #title>
+          <div style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.95rem;">
+            <i class="pi pi-history" style="font-size: 0.9rem;"></i>
+            <span>{{ t('dashboard.recent_activity') }}</span>
+          </div>
+        </template>
+        <template #content>
+          <div v-if="dashboardStore.recentActivity.length > 0">
+            <div
+              v-for="(activity, index) in dashboardStore.recentActivity"
+              :key="activity.id"
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0.35rem 0;
+                gap: 0.5rem;
+              "
+              :style="{ borderBottom: index === dashboardStore.recentActivity.length - 1 ? 'none' : '1px solid var(--p-surface-200)' }"
+            >
+              <div style="display: flex; align-items: center; gap: 0.4rem; min-width: 0;">
+                <span :style="{ width: '7px', height: '7px', borderRadius: '50%', background: activity.color, display: 'inline-block', flexShrink: 0 }"></span>
+                <span style="font-weight: 500; font-size: 0.8rem; white-space: nowrap;">{{ t(activity.actionKey) }}</span>
+                <span style="color: var(--p-text-muted-color); font-size: 0.75rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ formatDetail(activity) }}</span>
+              </div>
+              <span style="color: var(--p-text-muted-color); font-size: 0.7rem; white-space: nowrap; flex-shrink: 0;">{{ formatTime(activity.timestamp) }}</span>
             </div>
           </div>
-
-        </div>
-      </template>
-    </Card>
-
-    <!-- Recent Activity -->
-    <Card>
-      <template #title>
-        <div style="display: flex; align-items: center; gap: 0.5rem;">
-          <i class="pi pi-history"></i>
-          <span>{{ t('dashboard.recent_activity') }}</span>
-        </div>
-      </template>
-      <template #content>
-        <div v-if="dashboardStore.recentActivity.length > 0">
-          <div
-            v-for="(activity, index) in dashboardStore.recentActivity"
-            :key="activity.id"
-            style="
-              display: flex;
-              align-items: center;
-              justify-content: space-between;
-              padding: 0.75rem 0;
-            "
-            :style="{ borderBottom: index === dashboardStore.recentActivity.length - 1 ? 'none' : '1px solid var(--p-surface-200)' }"
-          >
-            <div style="display: flex; align-items: center; gap: 0.75rem;">
-              <span :style="{ width: '10px', height: '10px', borderRadius: '50%', background: activity.color, display: 'inline-block', flexShrink: 0 }"></span>
-              <span style="font-weight: 500;">{{ t(activity.actionKey) }}</span>
-              <span style="color: var(--p-text-muted-color); font-size: 0.875rem;"> &nbsp;&nbsp;&nbsp;&nbsp; {{ formatDetail(activity) }}</span>
-            </div>
-            <span style="color: var(--p-text-muted-color); font-size: 0.8rem; white-space: nowrap;">{{ formatTime(activity.timestamp) }}</span>
+          <div v-else style="text-align: center; color: var(--p-text-muted-color); padding: 1.25rem;">
+            <i class="pi pi-inbox" style="font-size: 1.5rem; display: block; margin-bottom: 0.4rem;"></i>
+            <p style="font-size: 0.8rem;">{{ t('dashboard.no_activity') }}</p>
           </div>
-        </div>
-        <div v-else style="text-align: center; color: var(--p-text-muted-color); padding: 2rem;">
-          <i class="pi pi-inbox" style="font-size: 2rem; display: block; margin-bottom: 0.5rem;"></i>
-          <p>{{ t('dashboard.no_activity') }}</p>
-        </div>
-      </template>
-    </Card>
+        </template>
+      </Card>
+
+    </div>
   </div>
 </template>
 

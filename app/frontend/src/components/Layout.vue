@@ -94,6 +94,12 @@ const items = ref([
     command: () => router.push('/simulate')
   },
   { 
+    label: t('nav.regional'), 
+    icon: 'pi pi-map', 
+    to: '/regional',
+    command: () => router.push('/regional')
+  },
+  { 
     label: t('nav.health'), 
     icon: 'pi pi-heart', 
     to: '/health',
@@ -106,6 +112,7 @@ watch(locale, () => {
     { label: t('nav.dashboard'), icon: 'pi pi-home', to: '/', command: () => router.push('/') },
     { label: t('nav.predict'), icon: 'pi pi-chart-line', to: '/predict', command: () => router.push('/predict') },
     { label: t('nav.simulate'), icon: 'pi pi-cog', to: '/simulate', command: () => router.push('/simulate') },
+    { label: t('nav.regional'), icon: 'pi pi-map', to: '/regional', command: () => router.push('/regional') },
     { label: t('nav.health'), icon: 'pi pi-heart', to: '/health', command: () => router.push('/health') },
   ]
 })

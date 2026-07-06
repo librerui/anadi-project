@@ -10,6 +10,7 @@
 PYTHON  ?= python3
 HOST    ?= 0.0.0.0
 PORT    ?= 8000
+PROD_PORT ?= 2229
 
 THIS_DIR   := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 REPO_ROOT  := $(abspath $(THIS_DIR)/..)
@@ -22,14 +23,8 @@ help: ## Show this help
 serve: ## Start the API with autoreload (dev)
 	cd $(REPO_ROOT) && $(PYTHON) -m uvicorn service.main:app --host $(HOST) --port $(PORT) --reload
 
-serve-prod: ## Start the API without autoreload (prod-like, localhost:8000)
-	cd $(REPO_ROOT) && $(PYTHON) -m uvicorn service.main:app --host $(HOST) --port $(PORT)
-
-serve-prod-8000: ## Start the API on prod server (0.0.0.0:8000)
-	cd $(REPO_ROOT) && $(PYTHON) -m uvicorn service.main:app --host 0.0.0.0 --port 8000 --workers 4
-
-serve-prod-5000: ## Start the API on prod server (0.0.0.0:5000)
-	cd $(REPO_ROOT) && $(PYTHON) -m uvicorn service.main:app --host 0.0.0.0 --port 5000 --workers 4
+serve-prod: ## Start the API without autoreload
+	cd $(REPO_ROOT) && $(PYTHON) -m uvicorn service.main:app --host $(HOST) --port $(PROD_PORT)
 
 clean-pycache: ## Remove __pycache__ dirs under service/
 	find $(THIS_DIR) -type d -name '__pycache__' -exec rm -rf {} +
