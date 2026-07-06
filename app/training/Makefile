@@ -1,7 +1,7 @@
 ## Training automation for the PTD models.
 ## Self-contained: runnable standalone from this directory
 ## (`cd training && make train-leve`) or via the root Makefile
-## (`make train-leve` from the repo root) — both resolve the same way.
+## (`make train-leve` from the repo root) both resolve the same way.
 ##
 ## `python -m training` must run with the repo root as cwd (so `training`
 ## resolves as a top-level package and its relative imports work), so every

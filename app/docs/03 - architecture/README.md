@@ -188,4 +188,28 @@ Esta versão imutável é a unidade de troca entre `/training` e `/service`: o `
 
 ## `/frontend`
 
-TBD.
+
+Frontend da aplicação. Interface web construída em Vue 3 com TypeScript, que consome a API REST exposta pelo `/service`. Organizado em vistas independentes alinhadas com os domínios funcionais da API: painel de controlo, previsão, simulação e monitorização de estado. A comunicação com o backend é feita através de um cliente HTTP centralizado, com gestão de estado local via Pinia para persistência de sessão e histórico de operações.
+
+### Stack tecnológico
+
+| Camada | Tecnologia |
+|--------|-----------|
+| Framework | Vue 3  |
+| Linguagem | TypeScript |
+| UI Components | PrimeVue 4 (tema Aura) |
+| Gráficos | vue-chartjs / Chart.js |
+| Estado | Pinia |
+| Internacionalização | vue-i18n |
+| HTTP Client | Axios |
+| Build Tool | Vite |
+
+### Persistência local
+
+As stores Pinia sincronizam automaticamente com `localStorage`:
+
+- `predictionStore`: últimas 100 previsões e favoritos do utilizador
+- `simulationStore`: últimas 50 simulações
+- `dashboardStore`: agrega métricas em tempo real a partir das stores acima (contagens diárias, feed de atividade)
+
+Os dados sobrevivem a refrescos de página e são limpos explicitamente pelo utilizador ou por limites de capacidade configurados nas stores.

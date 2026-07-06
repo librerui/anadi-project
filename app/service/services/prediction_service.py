@@ -12,6 +12,7 @@ from fastapi import HTTPException
 from ..repositories.model_repository import ModelArtifacts, ModelRepository
 from ..schemas.model import FeatureImportanceResponse
 from ..schemas.prediction import PredictionRequest, PredictionResponse
+from ..schemas.ptd import PTDBase
 from ..schemas.simulation import SimulationRequest, SimulationResponse
 
 

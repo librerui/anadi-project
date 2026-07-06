@@ -1,42 +1,82 @@
-# frontend
+# Frontend
 
-This template should help get you started developing with Vue 3 in Vite.
+This frontend is built with Vue 3, Vite, Pinia, PrimeVue and Axios. It provides the interactive dashboard for selecting PTDs, running predictions, and simulating charger installations.
 
-## Recommended IDE Setup
+## What the frontend does
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+- Loads PTD metadata from the backend
+- Lets users select real PTDs by district and municipality
+- Auto-populates model features from selected PTD data
+- Runs predictions for classification and regression
+- Displays model output, confidence, and probabilities
+- Supports charger load simulation for feasibility checks
 
-## Recommended Browser Setup
+## Setup
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
-
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
+From the `app` directory:
 
 ```sh
+make frontend-install
+```
+
+Or from the frontend folder directly:
+
+```sh
+cd app/frontend
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+## Development
+
+Start the frontend dev server from the app root:
 
 ```sh
+make frontend-dev
+```
+
+Or directly:
+
+```sh
+cd app/frontend
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+The frontend expects the backend API at `http://localhost:8000/api/v1` by default. To override it, set `VITE_API_BASE_URL` in a `.env` file.
+
+## Build
+
+From the app root:
+
+```sh
+make frontend-build
+```
+
+Or from the frontend folder:
 
 ```sh
 npm run build
 ```
+
+## Type checking
+
+From the app root:
+
+```sh
+make frontend-typecheck
+```
+
+Or directly in the frontend folder:
+
+```sh
+npm run type-check
+```
+
+## Recommended editor setup
+
+- VS Code with [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar)
+- Use the `vue-tsc` command for accurate Vue/TS diagnostics
+
+## Troubleshooting
+
+- If the UI can’t reach the API, check that the backend is running and accessible at `http://localhost:8000/api/v1`.
+- If PTD options are missing, restart the backend and frontend so startup preload and API routes refresh.

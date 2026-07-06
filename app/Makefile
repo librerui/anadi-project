@@ -1,13 +1,7 @@
-## Root Makefile — thin dispatcher only. All real logic lives in the
-## Makefile of the folder it belongs to:
-##   training/Makefile  -> model training
-##   service/Makefile   -> the API
-## This file just forwards to them so `make <target>` works from the repo
-## root without you needing to remember which subfolder owns what.
-
 .PHONY: help \
         train train-leve train-regular train-pesado train-all clean-models \
-        serve serve-prod clean-pycache format
+        serve serve-prod serve-prod-8000 serve-prod-5000 clean-pycache format \
+		frontend-install frontend-dev frontend-build frontend-typecheck
 
 help:
 	@$(MAKE) -s -C training help
@@ -39,6 +33,24 @@ serve: ## Start the API with autoreload (dev)
 
 serve-prod: ## Start the API without autoreload (prod-like)
 	@$(MAKE) -C service serve-prod
+
+serve-prod-8000: ## Start the API on production (0.0.0.0:8000, 4 workers)
+	@$(MAKE) -C service serve-prod-8000
+
+serve-prod-5000: ## Start the API on production (0.0.0.0:5000, 4 workers)
+	@$(MAKE) -C service serve-prod-5000
+
+frontend-install: ## Install frontend dependencies
+	@cd frontend && npm install
+
+frontend-dev: ## Start frontend development server
+	@cd frontend && npm run dev
+
+frontend-build: ## Build the frontend for production
+	@cd frontend && npm run build
+
+frontend-typecheck: ## Run frontend type checking
+	@cd frontend && npm run type-check
 
 clean-pycache: ## Remove __pycache__ dirs everywhere
 	@$(MAKE) -C training clean-pycache

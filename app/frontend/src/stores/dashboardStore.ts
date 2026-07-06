@@ -6,8 +6,9 @@ import { useSimulationStore } from './simulationStore'
 export interface ActivityItem {
   id: string
   type: 'prediction' | 'simulation' | 'reload'
-  action: string
-  detail: string
+  actionKey: string
+  detailKey: string
+  detailParams: Record<string, string | number>
   timestamp: number
   color: string
 }
@@ -28,8 +29,12 @@ export const useDashboardStore = defineStore('dashboard', () => {
       activities.push({
         id: p.id,
         type: 'prediction',
-        action: 'Prediction',
-        detail: `${p.task === 'classification' ? 'Classification' : 'Regression'} — Profile: ${p.profile}`,
+        actionKey: 'dashboard.activity.prediction',
+        detailKey: 'dashboard.activity.profile_detail',
+        detailParams: {
+          task: p.task === 'classification' ? 'dashboard.activity.task_classification' : 'dashboard.activity.task_regression',
+          profile: p.profile,
+        },
         timestamp: p.timestamp,
         color: 'var(--p-primary-color)',
       })
@@ -39,8 +44,9 @@ export const useDashboardStore = defineStore('dashboard', () => {
       activities.push({
         id: s.id,
         type: 'simulation',
-        action: 'Simulation',
-        detail: `Monte Carlo — ${s.iterations.toLocaleString()} iterations`,
+        actionKey: 'dashboard.activity.simulation',
+        detailKey: 'dashboard.activity.simulation_detail',
+        detailParams: { count: s.iterations },
         timestamp: s.timestamp,
         color: 'var(--p-orange-500)',
       })

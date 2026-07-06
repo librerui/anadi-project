@@ -201,8 +201,8 @@
           >
             <div style="display: flex; align-items: center; gap: 0.75rem;">
               <span :style="{ width: '10px', height: '10px', borderRadius: '50%', background: activity.color, display: 'inline-block', flexShrink: 0 }"></span>
-              <span style="font-weight: 500;">{{ activity.action }}</span>
-              <span style="color: var(--p-text-muted-color); font-size: 0.875rem;">— {{ activity.detail }}</span>
+              <span style="font-weight: 500;">{{ t(activity.actionKey) }}</span>
+              <span style="color: var(--p-text-muted-color); font-size: 0.875rem;"> &nbsp;&nbsp;&nbsp;&nbsp; {{ formatDetail(activity) }}</span>
             </div>
             <span style="color: var(--p-text-muted-color); font-size: 0.8rem; white-space: nowrap;">{{ formatTime(activity.timestamp) }}</span>
           </div>
@@ -223,17 +223,24 @@ import { useRouter } from 'vue-router'
 import Card from 'primevue/card'
 import Button from 'primevue/button'
 import Tag from 'primevue/tag'
-import { useDashboardStore } from '@/stores/dashboardStore'
+import { useDashboardStore, type ActivityItem } from '@/stores/dashboardStore'
 
 const { t } = useI18n()
 const router = useRouter()
 const dashboardStore = useDashboardStore()
 
+function formatDetail(activity: ActivityItem): string {
+  const params: Record<string, string | number> = { ...activity.detailParams }
+  if (typeof params.task === 'string') {
+    params.task = t(params.task)
+  }
+  return t(activity.detailKey, params)
+}
+
 const goTo = (path: string) => {
   router.push(path)
 }
 
-// System status based on health check — replace with real API call
 const systemStatus = computed(() => dashboardStore.systemHealth >= 80)
 
 function formatTime(timestamp: number): string {
@@ -242,9 +249,9 @@ function formatTime(timestamp: number): string {
   const hours = Math.floor(diff / 3600000)
   const days = Math.floor(diff / 86400000)
 
-  if (minutes < 1) return 'just now'
-  if (minutes < 60) return `${minutes} min ago`
-  if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`
-  return `${days} day${days > 1 ? 's' : ''} ago`
+  if (minutes < 1) return t('dashboard.time.just_now')
+  if (minutes < 60) return t('dashboard.time.minutes_ago', { count: minutes })
+  if (hours < 24) return t('dashboard.time.hours_ago', { count: hours })
+  return t('dashboard.time.days_ago', { count: days })
 }
 </script>

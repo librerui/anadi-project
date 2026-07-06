@@ -139,6 +139,16 @@ class ModelRepository:
         )
         return artifacts
 
+    def get_geo_mapping(
+        self, profile_tag: str = "leve", version: Optional[str] = None
+    ) -> pd.DataFrame:
+        artifacts = self.load_artifacts(profile_tag, version)
+        if artifacts.geo_mapping is None:
+            raise FileNotFoundError(
+                f"Geo mapping not found for profile={profile_tag} version={artifacts.version}"
+            )
+        return artifacts.geo_mapping
+
     def reload(
         self, profile_tag: str = "leve", version: Optional[str] = None
     ) -> ModelArtifacts:

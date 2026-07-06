@@ -53,7 +53,7 @@ def subsample(
     """Subsample X/y to at most `n` rows using CFG's sample size knobs.
 
     `n=None` (or 0) means "use the full dataset". X and y must be in the
-    same row order (positionally aligned) — this is true coming out of
+    same row order (positionally aligned); this is true coming out of
     prepare_training_data, but X's pandas index may have gaps (e.g. after
     dropna), so we sample by *position* via `.iloc` / integer indexing
     rather than by X's index labels. Using labels to index into a plain

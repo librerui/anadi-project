@@ -38,6 +38,34 @@ export interface SimulationResponse {
   distribution: Record<string, number>
 }
 
+export interface PTDBase {
+  distrito: string
+  concelho: string
+  codigo_instalacao: string
+  potencia_instalada: number
+  n_clientes: number
+  p_ip_total: number
+  p_ip_inef: number
+  led_ratio: number
+  n_luminarias: number
+  n_lampadas: number
+  cap_per_cliente: number
+  distrito_enc?: number
+  concelho_enc?: number
+  pfolga_ptd?: number
+  util_decimal?: number
+  latitude?: number
+  longitude?: number
+}
+
+export interface PTDListResponse {
+  items: PTDBase[]
+}
+
+export interface PTDResponse {
+  item: PTDBase
+}
+
 export interface HealthResponse {
   status: string
   detail: string

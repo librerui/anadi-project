@@ -13,7 +13,7 @@
         <div style="font-size: 2rem; font-weight: bold;" :style="{ color: valueColor }">
           {{ (props.value * 100).toFixed(1) }}%
         </div>
-        <div style="font-size: 0.875rem; color: var(--p-text-muted-color);">
+        <div style="font-size: 0.875rem; color: #6b7280;">
           {{ props.label }}
         </div>
       </div>
@@ -26,37 +26,37 @@
       gap: 1.5rem;
       margin-top: 0.5rem;
       font-size: 0.8rem;
-      color: var(--p-text-muted-color);
+      color: #6b7280;
     ">
       <div style="display: flex; align-items: center; gap: 0.4rem;">
         <span style="
           width: 12px;
           height: 12px;
           border-radius: 2px;
-          background: var(--p-green-500);
+          background: #22c55e;
           display: inline-block;
         "></span>
-        <span>Baixo</span>
+        <span>{{ $t('common.risk_low') }}</span>
       </div>
       <div style="display: flex; align-items: center; gap: 0.4rem;">
         <span style="
           width: 12px;
           height: 12px;
           border-radius: 2px;
-          background: var(--p-orange-500);
+          background: #f97316;
           display: inline-block;
         "></span>
-        <span>Médio</span>
+        <span>{{ $t('common.risk_medium') }}</span>
       </div>
       <div style="display: flex; align-items: center; gap: 0.4rem;">
         <span style="
           width: 12px;
           height: 12px;
           border-radius: 2px;
-          background: var(--p-red-500);
+          background: #ef4444;
           display: inline-block;
         "></span>
-        <span>Alto</span>
+        <span>{{ $t('common.risk_high') }}</span>
       </div>
     </div>
   </div>
@@ -80,10 +80,11 @@ const props = defineProps<{
 
 const thresholds = computed(() => props.thresholds ?? { low: 0.3, medium: 0.7 })
 
+// FIX: Use actual hex colors instead of CSS variables for canvas rendering
 const valueColor = computed(() => {
-  if (props.value < thresholds.value.low) return 'var(--p-green-500)'
-  if (props.value < thresholds.value.medium) return 'var(--p-orange-500)'
-  return 'var(--p-red-500)'
+  if (props.value < thresholds.value.low) return '#22c55e'   // green-500
+  if (props.value < thresholds.value.medium) return '#f97316' // orange-500
+  return '#ef4444'                                            // red-500
 })
 
 const gaugeData = computed(() => {
@@ -93,7 +94,7 @@ const gaugeData = computed(() => {
     labels: [props.label, ''],
     datasets: [{
       data: [v, empty],
-      backgroundColor: [valueColor.value, 'var(--p-surface-200)'],
+      backgroundColor: [valueColor.value, '#e5e7eb'], // FIX: hex instead of var(--p-surface-200)
       borderWidth: 0,
       circumference: 180,
       rotation: 270,

@@ -3,19 +3,35 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 
 from ..core.logging import configure_logging
+from ..core.config import settings
 from ..repositories.model_repository import ModelRepository
+from ..repositories.ptd_repository import PTDRepository
 from ..schemas.health import HealthResponse
 from ..schemas.model import FeatureImportanceResponse
 from ..schemas.prediction import PredictionRequest, PredictionResponse
 from ..schemas.simulation import SimulationRequest, SimulationResponse
+from ..schemas.ptd import PTDResponse, PTDListResponse
 from ..services.prediction_service import PredictionService
-from ..core.config import settings
 
 router = APIRouter(prefix="/api/v1", tags=["Prediction API"])
 
 
+_model_repository: ModelRepository | None = None
+_ptd_repository: PTDRepository | None = None
+
+
 def get_repository() -> ModelRepository:
-    return ModelRepository(settings.model_root)
+    global _model_repository
+    if _model_repository is None:
+        _model_repository = ModelRepository(settings.model_root)
+    return _model_repository
+
+
+def get_ptd_repository() -> PTDRepository:
+    global _ptd_repository
+    if _ptd_repository is None:
+        _ptd_repository = PTDRepository(settings.raw_ptd_data_path)
+    return _ptd_repository
 
 
 def get_service(
@@ -312,6 +328,109 @@ def simulate(
     request: SimulationRequest, service: PredictionService = Depends(get_service)
 ) -> SimulationResponse:
     return service.simulate_overload(request)
+
+
+def _parse_coordinates(raw: dict) -> tuple[float | None, float | None]:
+    raw_value = raw.get("Coordenadas Geográficas")
+    if isinstance(raw_value, str):
+        parts = [part.strip() for part in raw_value.split(",")]
+        if len(parts) == 2:
+            try:
+                latitude = float(parts[0])
+                longitude = float(parts[1])
+                return latitude, longitude
+            except ValueError:
+                pass
+
+    try:
+        latitude = raw.get("Latitude")
+        longitude = raw.get("Longitude")
+        return (float(latitude), float(longitude)) if latitude is not None and longitude is not None else (None, None)
+    except (TypeError, ValueError):
+        return None, None
+
+
+def _normalize_ptd_record(raw: dict) -> dict:
+    latitude, longitude = _parse_coordinates(raw)
+    return {
+        "distrito": raw.get("Distrito"),
+        "concelho": raw.get("Concelho"),
+        "codigo_instalacao": raw.get("Código de Instalação"),
+        "potencia_instalada": raw.get("Potência instalada [kVA]"),
+        "n_clientes": int(raw.get("N_Clientes", 0)),
+        "p_ip_total": float(raw.get("P_IP_Total", 0.0)),
+        "p_ip_inef": float(raw.get("P_IP_Inef", 0.0)),
+        "led_ratio": float(raw.get("LED_Ratio", 0.0)),
+        "n_luminarias": int(raw.get("N_Luminarias", 0)),
+        "n_lampadas": int(raw.get("N_Lampadas", 0)),
+        "cap_per_cliente": float(raw.get("Cap_per_Cliente", 0.0)),
+        "distrito_enc": raw.get("Distrito_enc"),
+        "concelho_enc": raw.get("Concelho_enc"),
+        "pfolga_ptd": raw.get("PFolga_PTD"),
+        "util_decimal": raw.get("Util_Decimal"),
+        "latitude": latitude,
+        "longitude": longitude,
+    }
+
+
+@router.get(
+    "/ptds",
+    response_model=PTDListResponse,
+    summary="List available PTDs",
+    description="List PTDs filtered by distrito and concelho, returning a small selection of metadata for the UI.",
+)
+def list_ptds(
+    distrito: str | None = None,
+    concelho: str | None = None,
+    profile: str = "leve",
+    version: str | None = None,
+    limit: int | None = None,
+    repository: PTDRepository = Depends(get_ptd_repository),
+    model_repository: ModelRepository = Depends(get_repository),
+) -> PTDListResponse:
+    try:
+        ptds = repository.list_ptds(distrito, concelho, limit)
+        geo_mapping = model_repository.get_geo_mapping(profile, version)
+        ptds = ptds.merge(
+            geo_mapping,
+            on=["Distrito", "Concelho"],
+            how="left",
+            suffixes=(None, None),
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+    normalized = [_normalize_ptd_record(record) for record in ptds.to_dict(orient="records")]
+    return PTDListResponse(items=normalized)
+
+
+@router.get(
+    "/ptds/{ptd_id}",
+    response_model=PTDResponse,
+    summary="Get PTD details",
+    description="Fetch a single PTD row by its installation code.",
+)
+def get_ptd(
+    ptd_id: str,
+    profile: str = "leve",
+    version: str | None = None,
+    repository: PTDRepository = Depends(get_ptd_repository),
+    model_repository: ModelRepository = Depends(get_repository),
+) -> PTDResponse:
+    try:
+        ptd = repository.get_ptd(ptd_id)
+        geo_mapping = model_repository.get_geo_mapping(profile, version)
+        encoded = geo_mapping[
+            (geo_mapping["Distrito"] == ptd["Distrito"]) 
+            & (geo_mapping["Concelho"] == ptd["Concelho"])
+        ]
+        if not encoded.empty:
+            ptd["Distrito_enc"] = int(encoded.iloc[0]["Distrito_enc"])
+            ptd["Concelho_enc"] = int(encoded.iloc[0]["Concelho_enc"])
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+    return PTDResponse(item=_normalize_ptd_record(ptd.to_dict()))
 
 
 @router.get(

@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import asyncio
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routes import router
+from .routes import get_ptd_repository, router
 from ..core.logging import configure_logging
 from ..core.config import settings
 
@@ -24,10 +26,24 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # Vite dev server
+    allow_origins=[
+        "http://localhost:5173",  # Vite dev server
+        "http://localhost:3000",  # Alt dev server
+        "http://10.9.21.12",  # Production (IP)
+        "https://10.9.21.12",  # Production (IP, HTTPS)
+        "http://vs268.dei.isep.ipp.pt",  # Production (hostname)
+        "https://vs268.dei.isep.ipp.pt",  # Production (hostname, HTTPS)
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.on_event("startup")
+async def preload_ptd_data() -> None:
+    pt_repo = get_ptd_repository()
+    await asyncio.to_thread(pt_repo.preload)
+
 
 app.include_router(router)

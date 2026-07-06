@@ -59,9 +59,9 @@
         <div style="display: flex; gap: 0.75rem; align-items: flex-end; margin-bottom: 1rem; flex-wrap: wrap;">
           <div style="display: flex; flex-direction: column; gap: 0.25rem;">
             <label style="font-weight: 500;">{{ $t('health.profile_label', 'Profile') }}</label>
-            <Dropdown v-model="importanceProfile" :options="profiles" placeholder="Select profile" style="width: 12rem;" />
+            <Dropdown v-model="importanceProfile" :options="profiles" :placeholder="t('health.select_profile')" style="width: 12rem;" />
           </div>
-          <Button label="Load" icon="pi pi-search" @click="loadFeatureImportance" :loading="loadingFeatures" />
+          <Button :label="t('health.load')" icon="pi pi-search" @click="loadFeatureImportance" :loading="loadingFeatures" />
         </div>
 
         <div v-if="importanceData" style="background: var(--p-surface-100); border-radius: 0.5rem; padding: 1rem;">
@@ -73,7 +73,7 @@
         
         <div v-else style="color: var(--p-text-muted-color); text-align: center; padding: 2rem; background: var(--p-surface-100); border-radius: 0.5rem;">
           <i class="pi pi-chart-bar" style="font-size: 2rem; display: block; margin-bottom: 0.5rem;"></i>
-          <p>Select a profile and click Load to view feature importances.</p>
+          <p>{{ t('health.feature_importance_empty') }}</p>
         </div>
       </template>
     </Card>
