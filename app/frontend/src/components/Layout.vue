@@ -28,7 +28,19 @@
       </template>
 
       <template #end>
-        <div style="display: flex; gap: 0.5rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <!-- Preset Selector -->
+          <!-- <Dropdown
+            v-model="themeStore.preset"
+            :options="presetOptions"
+            optionLabel="label"
+            optionValue="value"
+            size="small"
+            style="min-width: 120px;"
+            @change="onPresetChange"
+          /> -->
+
+          <!-- Language Buttons -->
           <Button 
             v-for="lang in languages" 
             :key="lang.code"
@@ -39,6 +51,7 @@
           />
         </div>
       </template>
+      
     </Menubar>
 
     <div style="padding: 1rem; max-width: 1400px; margin: 0 auto;">
@@ -50,17 +63,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import Menubar from 'primevue/menubar'
 import Button from 'primevue/button'
 import Avatar from 'primevue/avatar'
 import Toast from 'primevue/toast'
+import Dropdown from 'primevue/dropdown'
+import { useThemeStore } from '@/stores/themeStore'
 
 const { locale, t } = useI18n()
 const route = useRoute()
 const router = useRouter()
+const themeStore = useThemeStore()
 
 const languages = [
   { code: 'en', label: 'EN' },
@@ -73,6 +89,17 @@ const setLocale = (lang: string) => {
 }
 
 const isActive = (path: string) => route.path === path
+
+const presetOptions = computed(() => [
+  { value: 'aura', label: t('theme.aura') },
+  { value: 'lara', label: t('theme.lara') },
+  { value: 'nora', label: t('theme.nora') },
+  { value: 'material', label: t('theme.material') },
+])
+
+const onPresetChange = () => {
+  window.location.reload()
+}
 
 const items = ref([
   { 

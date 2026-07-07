@@ -10,6 +10,15 @@
     "regional": "Regional",
     "health": "Estado"
   },
+  "theme": {
+    "toggle": "Alternar Tema",
+    "light": "Claro",
+    "dark": "Escuro",
+    "aura": "Aura",
+    "lara": "Lara",
+    "nora": "Nora",
+    "material": "Material"
+  },
   "regional": {
     "title": "Análise Regional",
     "subtitle": "Avaliação de capacidade de instalação de carregadores por região",
@@ -74,20 +83,20 @@
     "cards": {
       "predict": "Executar previsões de classificação e regressão",
       "simulate": "Simular cenários de sobrecarga da rede",
-      "health": "Verificar estado dos modelos e serviços",
-      "regional": "Analisar capacidade de carregadores por região"
+      "regional": "Analisar capacidade de carregadores por região",
+      "health": "Verificar estado dos modelos e serviços"
     },
     "stats": {
-      "system_status": "Estado do Sistema",
-      "predictions_today": "Previsões Hoje",
-      "simulations_run": "Simulações Hoje",
-      "models_loaded": "Modelos Carregados",
-      "regional_analyses": "Análises Regionais",
-      "ptds_analysed": "PTDs Analisados",
-      "avg_prediction_time": "Tempo Médio (ms)",
-      "most_used_model": "Modelo Mais Usado",
-      "top_region": "Região Mais Ativa",
-      "success_rate": "Taxa de Sucesso"
+        "system_status": "Estado do Sistema",
+        "predictions_today": "Previsões Hoje",
+        "simulations_run": "Simulações Hoje",
+        "models_loaded": "Modelos Carregados",
+        "regional_analyses": "Análises Regionais",
+        "ptds_analysed": "PTDs Analisados",
+        "avg_prediction_time": "Tempo Médio (ms)",
+        "most_used_model": "Modelo Mais Usado",
+        "top_region": "Região Mais Ativa",
+        "success_rate": "Taxa de Sucesso"
     },
     "quick_info": "Visão Geral Rápida",
     "recent_activity": "Atividade Recente",
@@ -95,10 +104,12 @@
     "activity": {
       "prediction": "Previsão",
       "simulation": "Simulação",
+      "regional": "Análise Regional",
       "task_classification": "Classificação",
       "task_regression": "Regressão",
       "profile_detail": "{task}, Perfil: {profile}",
-      "simulation_detail": "Monte Carlo: {count} iterações"
+      "simulation_detail": "Monte Carlo: {count} iterações",
+      "regional_detail": "Analisados {count} PTDs em {region}"
     },
     "time": {
       "just_now": "agora mesmo",
@@ -113,8 +124,16 @@
     "configuration": "Configuração do Modelo",
     "profile": "Perfil",
     "profile_help": "Selecione o perfil operacional (condições de carga leve, regular ou pesada).",
-    "version": "Versão (opcional)",
+    "profile_leve": "Leve",
+    "profile_leve_desc": "Previsões mais rápidas, menor precisão. Ideal para verificações rápidas.",
+    "profile_regular": "Regular",
+    "profile_regular_desc": "Equilíbrio entre velocidade e precisão.",
+    "profile_pesado": "Pesado",
+    "profile_pesado_desc": "Mais lento mas maior precisão. Recomendado para a maioria dos casos.",
+    "version": "Versão",
+    "version_latest": "Mais Recente (Recomendado)",
     "version_help": "Especifique uma versão do modelo, ou deixe em branco para a padrão.",
+    "select_version": "Selecionar versão",
     "task": "Tipo de Tarefa",
     "task_help": "Escolha classificação para saída categórica ou regressão para valores contínuos.",
     "classification_tab": "Classificação",
@@ -209,7 +228,7 @@
     "parameters": "Parâmetros da Simulação",
     "profile": "Perfil",
     "select_profile": "Selecione um perfil",
-    "version": "Versão (opcional)",
+    "version": "Versão",
     "optional_placeholder": "Opcional",
     "model": "Modelo",
     "features": "Valores Base das Características",

@@ -23,13 +23,16 @@ export const usePredictionStore = defineStore('prediction', () => {
   const sortedHistory = computed(() => 
     [...history.value].sort((a, b) => b.timestamp - a.timestamp)
   )
-  
+
   const todayCount = computed(() => {
     const today = new Date().setHours(0, 0, 0, 0)
     return history.value.filter(h => h.timestamp >= today).length
   })
 
   const totalCount = computed(() => history.value.length)
+
+  // Alias for Dashboard compatibility
+  const records = computed(() => history.value)
 
   // Actions
   function addRecord(record: Omit<PredictionRecord, 'id' | 'timestamp'>) {
@@ -95,6 +98,7 @@ export const usePredictionStore = defineStore('prediction', () => {
     sortedHistory,
     todayCount,
     totalCount,
+    records,
     addRecord,
     addToFavorites,
     removeFromFavorites,

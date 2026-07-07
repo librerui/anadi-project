@@ -13,20 +13,36 @@
         </div>
       </template>
       <template #content>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem;">
+          <!-- Profile with descriptive labels -->
           <div style="display: flex; flex-direction: column; gap: 0.25rem; min-width: 0;">
             <label for="profile" style="font-weight: 500;">{{ $t('prediction.profile') }}</label>
-            <Dropdown id="profile" v-model="form.profile" :options="profiles" :placeholder="t('prediction.select_profile')" style="width: 100%;" />
+            <Dropdown id="profile" v-model="form.profile" :options="profileOptions" optionLabel="label" optionValue="value" :placeholder="t('prediction.select_profile')" fluid>
+              <template #option="slotProps">
+                <div style="display: flex; flex-direction: column; gap: 0.15rem;">
+                  <span style="font-weight: 600;">{{ slotProps.option.label }}</span>
+                  <span style="font-size: 0.75rem; color: var(--p-text-muted-color);">{{ slotProps.option.description }}</span>
+                </div>
+              </template>
+            </Dropdown>
           </div>
+          <!-- Version selector -->
           <div style="display: flex; flex-direction: column; gap: 0.25rem; min-width: 0;">
             <label for="version" style="font-weight: 500;">{{ $t('prediction.version') }}</label>
-            <InputText id="version" v-model="form.version" :placeholder="t('prediction.optional_placeholder')" style="width: 100%;" />
+            <Dropdown id="version" v-model="form.version" :options="versionOptions" optionLabel="label" optionValue="value" :placeholder="t('prediction.select_version')" showClear fluid>
+              <template #option="slotProps">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <span>{{ slotProps.option.label }}</span>
+                  <Tag v-if="slotProps.option.recommended" :value="$t('common.recommended')" severity="success" style="font-size: 0.7rem;" />
+                </div>
+              </template>
+            </Dropdown>
           </div>
         </div>
       </template>
     </Card>
 
-    <!-- PTD Selection + Map - all in one component -->
+    <!-- PTD Selection + Map -->
     <Card style="margin-bottom: 1rem;">
       <template #title>
         <div style="display: flex; align-items: center; gap: 0.5rem;">
@@ -64,7 +80,7 @@
             </template>
             <template #content>
               <div style="display: flex; flex-direction: column; gap: 0.25rem; max-width: 320px; min-width: 0;">
-                <Dropdown id="model_classification" v-model="form.model_name" :options="modelOptions.classification" optionLabel="label" optionValue="value" :placeholder="t('prediction.select_model')" style="width: 100%;">
+                <Dropdown id="model_classification" v-model="form.model_name" :options="modelOptions.classification" optionLabel="label" optionValue="value" :placeholder="t('prediction.select_model')" fluid>
                   <template #option="slotProps">
                     <div style="display: flex; align-items: center; gap: 0.5rem;">
                       <span>{{ slotProps.option.label }}</span>
@@ -89,7 +105,7 @@
                   <label :for="'c_' + key" style="font-size: 0.875rem; font-weight: 500;">
                     {{ key }} <span v-if="featureUnit(key)" style="color: var(--p-text-muted-color); font-weight: 400;">({{ featureUnit(key) }})</span>
                   </label>
-                  <InputNumber :id="'c_' + key" v-model="form.features[key]" mode="decimal" :min="0" :step="0.5" style="width: 100%;" showButtons :minFractionDigits="1" />
+                  <InputNumber :id="'c_' + key" v-model="form.features[key]" mode="decimal" :min="0" :step="0.5" fluid showButtons :minFractionDigits="1" />
                 </div>
               </div>
             </template>
@@ -112,11 +128,7 @@
               <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
                 <div style="background: var(--p-surface-100); padding: 1rem; border-radius: 0.5rem; text-align: center; min-width: 0;">
                   <p style="font-size: 0.875rem; color: var(--p-text-muted-color); margin-bottom: 0.25rem;">{{ $t('prediction.predicted_class') }}</p>
-                  <Tag
-                    :value="resultClassification.prediction"
-                    :severity="classSeverity(resultClassification.prediction)"
-                    style="font-size: 1.25rem; padding: 0.5rem 1rem; margin-top: 0.25rem;"
-                  />
+                  <Tag :value="resultClassification.prediction" :severity="classSeverity(resultClassification.prediction)" style="font-size: 1.25rem; padding: 0.5rem 1rem; margin-top: 0.25rem;" />
                 </div>
                 <div style="background: var(--p-surface-100); padding: 1rem; border-radius: 0.5rem; text-align: center; min-width: 0;">
                   <p style="font-size: 0.875rem; color: var(--p-text-muted-color); margin-bottom: 0.25rem;">{{ $t('prediction.model_used') }}</p>
@@ -133,11 +145,7 @@
               </div>
 
               <div v-if="primaryProbability !== null" style="max-width: 320px; margin: 0 auto 1.5rem auto;">
-                <GaugeChart
-                  :value="primaryProbability"
-                  :label="t('prediction.confidence') + ': ' + resultClassification.prediction"
-                  :thresholds="{ low: 0.4, medium: 0.75 }"
-                />
+                <GaugeChart :value="primaryProbability" :label="t('prediction.confidence') + ': ' + resultClassification.prediction" :thresholds="{ low: 0.4, medium: 0.75 }" />
               </div>
 
               <div v-if="resultClassification.raw_scores && Object.keys(resultClassification.raw_scores).length">
@@ -146,22 +154,11 @@
                 <div style="background: var(--p-surface-100); border-radius: 0.5rem; padding: 1rem;">
                   <div v-for="(score, className) in resultClassification.raw_scores" :key="className" style="margin-bottom: 0.75rem;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
-                      <Tag
-                        :value="className"
-                        :severity="classSeverity(className)"
-                        style="font-size: 0.85rem;"
-                      />
+                      <Tag :value="className" :severity="classSeverity(className)" style="font-size: 0.85rem;" />
                       <span style="font-weight: 600;">{{ (score * 100).toFixed(1) }}%</span>
                     </div>
                     <div style="height: 24px; background: var(--p-surface-200); border-radius: 12px; overflow: hidden;">
-                      <div :style="{
-                        height: '100%',
-                        width: (score * 100) + '%',
-                        background: classColor(className),
-                        borderRadius: '12px',
-                        transition: 'width 0.5s ease',
-                        minWidth: score > 0 ? '4px' : '0',
-                      }" />
+                      <div :style="{ height: '100%', width: (score * 100) + '%', background: classColor(className), borderRadius: '12px', transition: 'width 0.5s ease', minWidth: score > 0 ? '4px' : '0' }" />
                     </div>
                   </div>
                 </div>
@@ -189,7 +186,7 @@
             </template>
             <template #content>
               <div style="display: flex; flex-direction: column; gap: 0.25rem; max-width: 320px; min-width: 0;">
-                <Dropdown id="model_regression" v-model="form.model_name" :options="modelOptions.regression" optionLabel="label" optionValue="value" :placeholder="t('prediction.select_model')" style="width: 100%;">
+                <Dropdown id="model_regression" v-model="form.model_name" :options="modelOptions.regression" optionLabel="label" optionValue="value" :placeholder="t('prediction.select_model')" fluid>
                   <template #option="slotProps">
                     <div style="display: flex; align-items: center; gap: 0.5rem;">
                       <span>{{ slotProps.option.label }}</span>
@@ -214,7 +211,7 @@
                   <label :for="'r_' + key" style="font-size: 0.875rem; font-weight: 500;">
                     {{ key }} <span v-if="featureUnit(key)" style="color: var(--p-text-muted-color); font-weight: 400;">({{ featureUnit(key) }})</span>
                   </label>
-                  <InputNumber :id="'r_' + key" v-model="form.features[key]" mode="decimal" :min="0" :step="0.5" style="width: 100%;" showButtons :minFractionDigits="1" />
+                  <InputNumber :id="'r_' + key" v-model="form.features[key]" mode="decimal" :min="0" :step="0.5" fluid showButtons :minFractionDigits="1" />
                 </div>
               </div>
             </template>
@@ -228,21 +225,20 @@
               </div>
             </template>
             <template #content>
-              <p style="margin: 0 0 0.75rem 0; font-weight: 500; font-size: 0.875rem;">{{ $t('prediction.charger_model') }}</p>
               <ChargerModelPicker v-model="form.charger_model_id" @select="onChargerModelSelect" style="margin-bottom: 1.25rem;" />
 
               <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
                 <div style="display: flex; flex-direction: column; gap: 0.25rem; min-width: 0;">
                   <label style="font-weight: 500;">{{ $t('prediction.charger_power') }} ({{ $t('prediction.units.kw') }})</label>
-                  <InputNumber v-model="form.charger_power" :min="0" :step="0.5" style="width: 100%;" showButtons :minFractionDigits="1" />
+                  <InputNumber v-model="form.charger_power" :min="0" :step="0.5" fluid showButtons :minFractionDigits="1" />
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 0.25rem; min-width: 0;">
                   <label for="n_chargers" style="font-weight: 500;">{{ $t('prediction.number_of_chargers') }}</label>
-                  <InputNumber id="n_chargers" v-model="form.n_chargers" :min="1" :step="1" style="width: 100%;" showButtons />
+                  <InputNumber id="n_chargers" v-model="form.n_chargers" :min="1" :step="1" fluid showButtons />
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 0.25rem; min-width: 0;">
                   <label for="utilization_factor" style="font-weight: 500;">{{ $t('prediction.utilization_factor') }} ({{ $t('prediction.units.ratio') }})</label>
-                  <InputNumber id="utilization_factor" v-model="form.utilization_factor" :min="0" :max="1" :step="0.05" style="width: 100%;" showButtons :minFractionDigits="2" />
+                  <InputNumber id="utilization_factor" v-model="form.utilization_factor" :min="0" :max="1" :step="0.05" fluid showButtons :minFractionDigits="2" />
                 </div>
               </div>
 
@@ -273,12 +269,7 @@
                 &nbsp;•&nbsp;
                 {{ $t('prediction.current_setup') }}: <strong>{{ form.n_chargers }} × {{ form.charger_power }} {{ $t('prediction.units.kw') }}</strong>
               </p>
-              <GridSecurityChart
-                :base-capacity="gridCapacityBase"
-                :charger-power="form.charger_power"
-                :utilization-factor="form.utilization_factor"
-                :current-chargers="form.n_chargers"
-              />
+              <GridSecurityChart :base-capacity="gridCapacityBase" :charger-power="form.charger_power" :utilization-factor="form.utilization_factor" :current-chargers="form.n_chargers" />
             </template>
           </Card>
 
@@ -299,9 +290,7 @@
               <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
                 <div style="background: var(--p-surface-100); padding: 1rem; border-radius: 0.5rem; text-align: center; min-width: 0;">
                   <p style="font-size: 0.875rem; color: var(--p-text-muted-color); margin-bottom: 0.25rem;">{{ $t('prediction.predicted_value') }}</p>
-                  <p style="font-size: 1.75rem; font-weight: bold; color: var(--p-primary-color);">
-                    {{ Number(resultRegression.prediction).toFixed(2) }} {{ $t('prediction.units.kw') }}
-                  </p>
+                  <p style="font-size: 1.75rem; font-weight: bold; color: var(--p-primary-color);">{{ Number(resultRegression.prediction).toFixed(2) }} {{ $t('prediction.units.kw') }}</p>
                 </div>
                 <div style="background: var(--p-surface-100); padding: 1rem; border-radius: 0.5rem; text-align: center; min-width: 0;">
                   <p style="font-size: 0.875rem; color: var(--p-text-muted-color); margin-bottom: 0.25rem;">{{ $t('prediction.model_used') }}</p>
@@ -357,7 +346,18 @@ const ptdCache = usePTDCacheStore()
 const toast = useToast()
 const { t } = useI18n()
 
-const profiles = ['leve', 'regular', 'pesado']
+// ── Profile options with descriptive labels ──
+const profileOptions = computed(() => [
+  { value: 'leve', label: t('prediction.profile_leve'), description: t('prediction.profile_leve_desc') },
+  { value: 'regular', label: t('prediction.profile_regular'), description: t('prediction.profile_regular_desc') },
+  { value: 'pesado', label: t('prediction.profile_pesado'), description: t('prediction.profile_pesado_desc') },
+])
+
+// ── Version options ──
+const versionOptions = [
+  { value: '', label: t('prediction.version_latest'), recommended: true },
+  { value: '20260630195806', label: '20260630195806' },
+]
 
 const modelOptions: Record<'classification' | 'regression', { label: string; value: string; recommended?: boolean }[]> = {
   classification: [
@@ -392,7 +392,7 @@ const featureUnit = (key: string) => {
 
 const form = reactive({
   profile: 'leve',
-  version: '',
+  version: '' as string,
   model_name: 'NeuralNet',
   distrito: null as string | null,
   concelho: null as string | null,
@@ -419,8 +419,8 @@ const activeTab = ref(0)
 const onTabChange = (index: number) => {
   const task = index === 0 ? 'classification' : 'regression'
   const models = modelOptions[task]
-  if (models && models.length && !models.includes(form.model_name)) {
-    form.model_name = models[0] as string
+  if (models && models.length && !models.some(m => m.value === form.model_name)) {
+    form.model_name = models[0].value
   }
 }
 
@@ -435,16 +435,11 @@ const resultRegression = ref<PredictionResponse | null>(null)
 const submittingClassification = ref(false)
 const submittingRegression = ref(false)
 
-// PTD selector
 const selectedPTD = ref<PTDBase | null>(null)
 
 const onEncodedChange = (values: { distrito_enc: number | null; concelho_enc: number | null }) => {
-  if (values.distrito_enc != null) {
-    form.features['Distrito_enc'] = values.distrito_enc
-  }
-  if (values.concelho_enc != null) {
-    form.features['Concelho_enc'] = values.concelho_enc
-  }
+  if (values.distrito_enc != null) form.features['Distrito_enc'] = values.distrito_enc
+  if (values.concelho_enc != null) form.features['Concelho_enc'] = values.concelho_enc
 }
 
 const onPTDSelected = (ptd: PTDBase) => {
@@ -452,17 +447,13 @@ const onPTDSelected = (ptd: PTDBase) => {
   normalizePTD(ptd)
 }
 
-const totalChargerLoad = computed(
-  () => form.n_chargers * form.charger_power * form.utilization_factor
-)
-
+const totalChargerLoad = computed(() => form.n_chargers * form.charger_power * form.utilization_factor)
 const gridCapacityBase = computed(() => form.features['Potência instalada [kVA]'] || 50)
 
 const supportedChargersCount = computed(() => {
   const singleChargerEffectiveLoad = form.charger_power * form.utilization_factor
   if (singleChargerEffectiveLoad <= 0) return 0
-  const base = gridCapacityBase.value
-  return Math.max(0, Math.floor(base / singleChargerEffectiveLoad))
+  return Math.max(0, Math.floor(gridCapacityBase.value / singleChargerEffectiveLoad))
 })
 
 const primaryProbability = computed(() => {
@@ -471,9 +462,7 @@ const primaryProbability = computed(() => {
 })
 
 const scrollToResults = (refEl: Ref<HTMLElement | null>) => {
-  if (refEl.value) {
-    refEl.value.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }
+  if (refEl.value) refEl.value.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
 const classSeverity = (value: string): 'success' | 'warn' | 'danger' | 'info' => {
@@ -542,14 +531,24 @@ const onSubmit = async (task: 'classification' | 'regression') => {
 
     toast.add({ severity: 'success', summary: t('common.success'), detail: 'Prediction completed', life: 3000 })
   } catch (error: any) {
-    toast.add({
-      severity: 'error',
-      summary: t('common.error'),
-      detail: error.response?.data?.detail || error.message,
-      life: 5000,
-    })
+    toast.add({ severity: 'error', summary: t('common.error'), detail: error.response?.data?.detail || error.message, life: 5000 })
   } finally {
     submittingRef.value = false
   }
 }
 </script>
+
+<style scoped>
+:deep(.p-inputnumber),
+:deep(.p-inputnumber-input),
+:deep(.p-dropdown) {
+  width: 100% !important;
+  min-width: 0;
+}
+:deep(.p-inputnumber-input) {
+  width: 100% !important;
+}
+:deep(.p-dropdown-label) {
+  width: 100%;
+}
+</style>

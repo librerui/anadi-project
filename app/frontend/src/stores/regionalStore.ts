@@ -1,23 +1,21 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
-export interface SimulationRecord {
+export interface RegionalRecord {
   id: string
   timestamp: number
   profile: string
   version: string
   model_name: string
-  overload_class: string
-  iterations: number
-  noise_scale: number
-  features: Record<string, number>
+  region: string
+  ptdCount: number
   overload_probability: number
-  distribution: Record<string, number>
+  distribution?: Record<string, number>
 }
 
-export const useSimulationStore = defineStore('simulation', () => {
+export const useRegionalStore = defineStore('regional', () => {
   // State
-  const history = ref<SimulationRecord[]>([])
+  const history = ref<RegionalRecord[]>([])
 
   // Getters
   const sortedHistory = computed(() => 
@@ -31,12 +29,16 @@ export const useSimulationStore = defineStore('simulation', () => {
 
   const totalCount = computed(() => history.value.length)
 
+  const totalPtdCount = computed(() => 
+    history.value.reduce((sum, h) => sum + (h.ptdCount || 0), 0)
+  )
+
   // Alias for Dashboard compatibility
   const records = computed(() => history.value)
 
   // Actions
-  function addRecord(record: Omit<SimulationRecord, 'id' | 'timestamp'>) {
-    const newRecord: SimulationRecord = {
+  function addRecord(record: Omit<RegionalRecord, 'id' | 'timestamp'>) {
+    const newRecord: RegionalRecord = {
       ...record,
       id: crypto.randomUUID(),
       timestamp: Date.now(),
@@ -60,12 +62,12 @@ export const useSimulationStore = defineStore('simulation', () => {
 
   // Persistence
   function persist() {
-    localStorage.setItem('ptd-simulation-history', JSON.stringify(history.value))
+    localStorage.setItem('ptd-regional-history', JSON.stringify(history.value))
   }
 
   function load() {
     try {
-      const saved = localStorage.getItem('ptd-simulation-history')
+      const saved = localStorage.getItem('ptd-regional-history')
       if (saved) history.value = JSON.parse(saved)
     } catch {
       // Ignore parse errors
@@ -79,6 +81,7 @@ export const useSimulationStore = defineStore('simulation', () => {
     sortedHistory,
     todayCount,
     totalCount,
+    totalPtdCount,
     records,
     addRecord,
     clearHistory,

@@ -39,3 +39,11 @@ const props = defineProps<{
 const bodyColor = computed(() => (props.variant === 'DC' ? '#1e293b' : '#334155'))
 const accentColor = computed(() => (props.variant === 'DC' ? '#ef4444' : '#22c55e'))
 </script>
+
+<style scoped>
+svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+</style>

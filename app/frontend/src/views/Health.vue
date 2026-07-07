@@ -95,6 +95,7 @@ import Toast from 'primevue/toast'
 import ProgressBar from 'primevue/progressbar'
 import BarChart from '@/components/BarChart.vue'
 import { getHealth, getReady, reloadModels, getFeatureImportance } from '@/api/endpoints'
+import { useDashboardStore } from '@/stores/dashboardStore'
 
 const toast = useToast()
 const { t } = useI18n()
@@ -112,6 +113,8 @@ const profiles = ['leve', 'regular', 'pesado']
 const importanceProfile = ref('leve')
 const importanceData = ref<Record<string, Record<string, number>> | null>(null)
 
+const dashboardStore = useDashboardStore();
+
 const loadHealth = async () => {
   loadingHealth.value = true
   try {
@@ -123,6 +126,8 @@ const loadHealth = async () => {
     healthDetail.value = 'Service unavailable'
   } finally {
     loadingHealth.value = false
+
+    dashboardStore.setServiceStatus(healthStatus.value ? 'pass' : 'fail');
   }
 }
 
