@@ -12,6 +12,13 @@ Avaliação estatística agregada (por concelho) da rede, testes de hipóteses, 
 ### [Aprendizagem Automática](./PROJECT_2/README.md)
 Modelação preditiva granular (ao nível do PTD) usando algoritmos de Regressão e Classificação para avaliar a estabilidade e cenários de carga.
 
+## [Aplicação](./app/README.md)
+
+A aplicação consolidada desta pesquisa e uma interface web para interagir com os modelos treinados estão na pasta [app](./app/README.md).
+
+Para um mapa da documentação e navegação rápida entre os ficheiros de
+documentação veja: [app/docs](./app/docs/README.md).
+
 ## Estrutura do Repositório
 
 O repositório está organizado para separar os dados, os notebooks de análise e a componente científica de cada fase. Abaixo encontra-se a arquitetura principal:
@@ -28,6 +35,12 @@ O repositório está organizado para separar os dados, os notebooks de análise 
     * `article/`: Artigo científico em LaTeX e PDF, e respetivas imagens.
     * `main.ipynb` e `compare.ipynb`: Notebooks de treino, teste e comparação dos modelos.
     * `prediction.py`: Aplicação interativa para inferência do modelo com base no input do utilizador.
+* **`app/`** (Solução).
+    * `training/`: Pipeline de treino, preparação de features e geração de artefactos modelados.
+    * `service/`: Backend FastAPI que expõe os modelos para previsões e simulações.
+    * `models/`: Armazenamento dos modelos treinados e respetivos metadados.
+    * `frontend/`: Interface web em Vue para consulta e análise interativa.
+    * `docs/`: Documentação do projeto, incluindo teoria, API, frontend e backend.
 
 ## Autores
 - Rui Santiago ([Rui-San](https://github.com/Rui-San)), Departamento de Engenharia Informática do ISEP, 3.º ano, 2.º semestre, 2025/2026

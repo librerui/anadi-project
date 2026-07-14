@@ -1,0 +1,696 @@
+\documentclass[11pt,a4paper,openany]{book}
+
+%==============================================================================
+% ENCODING & FONTS (Modern Source Pro family)
+%==============================================================================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+
+% Load Source Serif Pro, Source Sans Pro, Source Code Pro
+\usepackage[default]{sourcesanspro}
+\usepackage{sourcecodepro}
+\usepackage{sourceserifpro}
+
+\usepackage{microtype}
+\usepackage[english,portuguese]{babel}
+
+%==============================================================================
+% PAGE GEOMETRY (Generous, readable margins)
+%==============================================================================
+\usepackage{geometry}
+\geometry{
+  left=1.3in, right=1.3in,
+  top=1.0in, bottom=1.2in,
+  headheight=14pt,
+  footskip=30pt
+}
+
+%==============================================================================
+% COLORS (Restrained)
+%==============================================================================
+\usepackage{xcolor}
+\definecolor{accent}{RGB}{45, 85, 125}
+\definecolor{muted}{RGB}{100, 100, 100}
+\definecolor{warn}{RGB}{200, 140, 40}
+\definecolor{danger}{RGB}{180, 60, 60}
+\definecolor{success}{RGB}{60, 140, 80}
+\definecolor{lightgray}{RGB}{245, 245, 245}
+\definecolor{darkgray}{RGB}{60, 60, 60}
+
+%==============================================================================
+% HYPERLINKS (Subtle)
+%==============================================================================
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=darkgray,
+  urlcolor=accent,
+  citecolor=accent,
+  pdftitle={EV Grid Analytics - Manual do Utilizador},
+  pdfauthor={EV Grid Analytics Platform}
+}
+
+%==============================================================================
+% GRAPHICS & FLOATS
+%==============================================================================
+\usepackage{graphicx}
+\usepackage{subcaption}
+\graphicspath{{./img/}}
+
+% Force figures HERE
+\usepackage{float}
+\floatplacement{figure}{H}
+
+%==============================================================================
+% TABLES
+%==============================================================================
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{multirow}
+
+%==============================================================================
+% LISTS
+%==============================================================================
+\usepackage{enumitem}
+\setlist[itemize]{leftmargin=1.5em, label={\color{muted}\textbullet}, topsep=0.5em, itemsep=0.25em}
+\setlist[enumerate]{leftmargin=1.5em, topsep=0.5em, itemsep=0.25em}
+
+%==============================================================================
+% MATH
+%==============================================================================
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+%==============================================================================
+% FRAMED ENVIRONMENTS
+%==============================================================================
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+
+\newtcolorbox{tipbox}[1][]{
+  colback=lightgray, colframe=success, coltitle=white,
+  fonttitle=\bfseries\sffamily, title=Dica,
+  arc=2pt, boxrule=0.5pt, left=8pt, right=8pt, top=6pt, bottom=6pt,
+  breakable, #1
+}
+
+\newtcolorbox{warnbox}[1][]{
+  colback=lightgray, colframe=warn, coltitle=white,
+  fonttitle=\bfseries\sffamily, title=Atenção,
+  arc=2pt, boxrule=0.5pt, left=8pt, right=8pt, top=6pt, bottom=6pt,
+  breakable, #1
+}
+
+\newtcolorbox{notebox}[1][]{
+  colback=lightgray, colframe=muted, coltitle=white,
+  fonttitle=\bfseries\sffamily, title=Nota,
+  arc=2pt, boxrule=0.5pt, left=8pt, right=8pt, top=6pt, bottom=6pt,
+  breakable, #1
+}
+
+%==============================================================================
+% INDEX
+%==============================================================================
+\usepackage{imakeidx}
+\makeindex[intoc, title=Índice Remissivo, columns=2]
+
+%==============================================================================
+% HEADERS & FOOTERS
+%==============================================================================
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE]{\small\sffamily\leftmark}
+\fancyhead[RO]{\small\sffamily\rightmark}
+\fancyfoot[LE,RO]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+%==============================================================================
+% CHAPTER & SECTION FORMATTING
+%==============================================================================
+\usepackage{titlesec}
+
+\titleclass{\part}{top}
+\titleformat{\part}[display]
+  {\normalfont\huge\bfseries\sffamily\color{accent}}
+  {\partname\ \thepart}
+  {20pt}
+  {\Huge}
+\titlespacing*{\part}{0pt}{0pt}{30pt}
+
+\titleformat{\chapter}[display]
+  {\normalfont\Large\bfseries\sffamily\color{darkgray}}
+  {\chaptertitlename\ \thechapter}
+  {12pt}
+  {\LARGE}
+\titlespacing*{\chapter}{0pt}{0pt}{20pt}
+
+\titleformat{\section}
+  {\normalfont\large\bfseries\sffamily\color{darkgray}}
+  {\thesection}
+  {1em}
+  {}
+\titlespacing*{\section}{0pt}{18pt}{8pt}
+
+\titleformat{\subsection}
+  {\normalfont\normalsize\bfseries\sffamily\color{darkgray}}
+  {\thesubsection}
+  {1em}
+  {}
+\titlespacing*{\subsection}{0pt}{12pt}{6pt}
+
+\titleformat{\paragraph}[runin]
+  {\normalfont\normalsize\bfseries\sffamily\color{darkgray}}
+  {}
+  {0pt}
+  {}
+\titlespacing*{\paragraph}{0pt}{10pt}{0.5em}
+
+%==============================================================================
+% CAPTIONS
+%==============================================================================
+\usepackage{caption}
+\captionsetup{
+  font=small,
+  labelfont={bf,sc},
+  labelsep=period,
+  skip=8pt,
+  format=plain
+}
+
+%==============================================================================
+% TOC STYLING
+%==============================================================================
+\usepackage{tocloft}
+\renewcommand{\cftpartfont}{\bfseries\sffamily\color{accent}}
+\renewcommand{\cftchapfont}{\bfseries\sffamily}
+\renewcommand{\cftsecfont}{\sffamily}
+\renewcommand{\cftpartpagefont}{\bfseries\sffamily\color{accent}}
+\renewcommand{\cftchappagefont}{\bfseries\sffamily}
+\renewcommand{\cftsecpagefont}{\sffamily}
+\setlength{\cftbeforepartskip}{12pt}
+\setlength{\cftbeforechapskip}{6pt}
+\setlength{\cftbeforesecskip}{3pt}
+
+%==============================================================================
+% CUSTOM COMMANDS
+%==============================================================================
+\newcommand{\EVGrid}{\textsf{EV\,Grid\,Analytics}}
+\newcommand{\ptd}{PTD}
+\newcommand{\kva}{kVA}
+\newcommand{\kw}{kW}
+
+%==============================================================================
+% DOCUMENT
+%==============================================================================
+\begin{document}
+
+%==============================================================================
+% TITLE PAGE
+%==============================================================================
+\begin{titlepage}
+\begin{center}
+\vspace*{2cm}
+{\Huge\bfseries\sffamily\color{accent} Manual do Utilizador}\\[0.8cm]
+{\LARGE\bfseries\sffamily\color{darkgray} \EVGrid}\\[0.4cm]
+{\large\sffamily\color{muted} Plataforma de Análise de Rede Elétrica para Carregadores de Veículos Elétricos}\\[2cm]
+\vfill
+\begin{tcolorbox}[
+  colback=lightgray, colframe=accent, arc=4pt, boxrule=1pt,
+  width=0.85\textwidth, halign=center
+]
+\large\sffamily
+\textbf{Portuguese \& English Documentation}
+\end{tcolorbox}
+\vspace{2cm}
+{\large\sffamily\today}
+\vfill
+\end{center}
+\end{titlepage}
+
+%==============================================================================
+% FRONT MATTER
+%==============================================================================
+\frontmatter
+
+\chapter*{Resumo}
+\addcontentsline{toc}{chapter}{Resumo}
+\markboth{Resumo}{Resumo}
+
+A plataforma \EVGrid{} ajuda a analisar se os transformadores da rede elétrica (designados \textbf{\ptd s}) conseguem suportar a adição de carregadores para veículos elétricos. Funciona como um teste de stress para a rede elétrica, indicando \textbf{quão arriscado} é instalar carregadores de VE numa área específica e \textbf{quantos carregadores} a rede consegue suportar em segurança.
+
+A plataforma disponibiliza três ferramentas principais:
+\begin{itemize}
+\item \textbf{Previsão} --- análise de um transformador individual;
+\item \textbf{Simulação} --- cenários de ``e se\ldots'' com ruído aleatório;
+\item \textbf{Análise Regional} --- processamento em lote de distritos ou concelhos inteiros.
+\end{itemize}
+
+\vspace{1em}
+\begin{notebox}
+Este manual está organizado em duas partes: a Parte~\ref{part:pt} apresenta a documentação completa em português europeu; a Parte~\ref{part:en} contém a versão em inglês, com o mesmo conteúdo e estrutura. Ambas as partes partilham o mesmo índice remissivo no final do documento.
+\end{notebox}
+
+\tableofcontents
+
+%==============================================================================
+% MAIN MATTER --- PORTUGUESE
+%==============================================================================
+\mainmatter
+
+\part{Documentação em Português}\label{part:pt}
+
+%------------------------------------------------------------------------------
+\chapter{Conceitos Fundamentais}\label{ch:conceitos}
+%------------------------------------------------------------------------------
+
+Antes de utilizar a ferramenta, convém familiarizar-se com alguns termos recorrentes ao longo deste manual. Um \textbf{\ptd} (Posto de Transformação de Distribuição) é um transformador elétrico específico da rede, identificado por um código alfanumérico (por exemplo, \texttt{PTD-12345}) e associado a uma localização geográfica concreta. O \textbf{perfil} de consumo é uma configuração pré-definida que determina a agressividade da análise: \texttt{leve} (ligeiro) para zonas residenciais de baixa densidade, \texttt{regular} para áreas mistas residencial-comercial, e \texttt{pesado} para zonas industriais ou comerciais de alta densidade.
+
+O \textbf{modelo} é o motor de previsão subjacente, com opções que incluem NeuralNet, Decision Tree, SVM, entre outros. Os modelos marcados como \textbf{Recomendado} foram pré-testados e costumam oferecer os melhores resultados. A \textbf{classificação} traduz o risco em três níveis: Baixo (seguro), Médio (cuidado) e Alto (sobrecarga perigosa). A \textbf{regressão}, por seu turno, fornece uma previsão numérica da potência necessária, expressa em quilowatts (\kw).
+
+A \textbf{potência instalada} do transformador (em \kva) representa o limite máximo que o equipamento foi construído para suportar. A \textbf{potência do carregador} (em \kw) indica a exigência de cada posto de carregamento individual. O \textbf{fator de utilização}, um valor entre 0 e 1, quantifica a fração do tempo em que os carregadores estão efetivamente em uso --- por exemplo, 0,7 corresponde a uma ocupação de 70\,\%. A \textbf{carga total dos carregadores} resulta da expressão
+\[
+\text{Carga Total} = \text{N.º Carregadores} \times \text{Potência/Carregador} \times \text{Fator de Utilização}.
+\]
+
+\begin{table}[H]
+\centering
+\caption{Níveis de risco e ações recomendadas}\label{tab:riscos}
+\begin{tabular}{@{}llp{6cm}@{}}
+\toprule
+\textbf{Nível} & \textbf{Cor} & \textbf{Ação Recomendada} \\
+\midrule
+Baixo & Verde & Avance com confiança. Condições seguras de operação. \\
+Médio & Laranja & Monitore de perto; considere reduzir o número de carregadores. \\
+Alto & Vermelho & \textbf{Não instale.} Atualize primeiro o transformador. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%------------------------------------------------------------------------------
+\chapter{Previsão de Carga}\label{ch:previsao}
+%------------------------------------------------------------------------------
+
+A página de Previsão destina-se à análise de um transformador específico, permitindo avaliar se este consegue suportar carregadores de veículos elétricos. O fluxo de trabalho divide-se em quatro etapas: configuração do modelo, seleção da localização, escolha da tarefa e interpretação dos resultados.
+
+\section{Configuração do Modelo}
+
+Na secção superior do formulário, o utilizador deve selecionar três parâmetros essenciais. O \textbf{perfil} (\texttt{leve}, \texttt{regular} ou \texttt{pesado}) define a rigorosidade da análise. O campo \textbf{versão} pode ser deixado em branco para utilizar a versão mais recente do modelo, ou preenchido com um identificador específico para testes comparativos. O \textbf{modelo} de previsão deve ser escolhido da lista disponível, sendo aconselhável privilegiar os que exibem a etiqueta verde ``Recomendado''.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{00_model_configs.png}
+\caption{Painel de configuração do modelo com perfil, versão e seletor de modelo.}
+\label{fig:model-configs}
+\end{figure}
+
+\section{Seleção da Localização}
+
+O mapa interativo e o seletor hierárquico (distrito, concelho, \ptd) permitem localizar o transformador pretendido. Quando um \ptd{} é selecionado, o sistema preenche automaticamente todos os detalhes técnicos --- potência instalada, número de luminárias, razão LED, entre outros. Os valores codificados \texttt{Distrito\_enc} e \texttt{Concelho\_enc} também se atualizam automaticamente, eliminando a necessidade de introdução manual.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{01_map_select.png}
+\caption{Mapa interativo com seletor hierárquico de distrito, concelho e PTD.}
+\label{fig:map-select}
+\end{figure}
+
+\section{Tarefas Disponíveis}
+
+A página de Previsão organiza-se em dois separadores. O separador \textbf{Classificação} responde à pergunta ``Este transformador vai sobrecarregar?'' O sistema prevê o risco como Baixo, Médio ou Alto, apresentando após submissão uma etiqueta colorida (verde, laranja ou vermelho), um medidor de confiança e os scores brutos para cada nível de risco.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{02_class_results.png}
+\caption{Resultados de classificação com etiqueta de risco, medidor de confiança e scores brutos.}
+\label{fig:class-results}
+\end{figure}
+
+O separador \textbf{Regressão} responde à pergunta ``Quanta potência será necessária?'' O sistema prevê a procura exata em \kw. Neste separador, o utilizador pode ainda configurar uma simulação de carregadores: selecionar um modelo de carregador (o que preenche automaticamente a potência), definir o número de carregadores a instalar e estabelecer o fator de utilização esperado.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{03_charger_sim.png}
+\caption{Configuração da simulação de carregadores com modelo, potência e fator de utilização.}
+\label{fig:charger-sim}
+\end{figure}
+
+Os resultados incluem o valor previsto em \kw, a carga total dos carregadores, o número de carregadores suportados e um gráfico de segurança da rede que visualiza a margem disponível à medida que se adicionam carregadores.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{04_regression_sim.png}
+\caption{Resultados de regressão com valor previsto, carga total e gráfico de segurança da rede.}
+\label{fig:regression-results}
+\end{figure}
+
+\section{Interpretação dos Resultados}
+
+Os resultados surgem automaticamente abaixo do formulário, com scroll suave até à secção correspondente. Cada previsão efetuada é registada no histórico da sessão, permitindo consulta posterior. A etiqueta de risco codificada por cores permite uma avaliação imediata: verde indica segurança, laranja recomenda cautela, e vermelho sinaliza perigo iminente de sobrecarga.
+
+%------------------------------------------------------------------------------
+\chapter{Simulação de Cenários}\label{ch:simulacao}
+%------------------------------------------------------------------------------
+
+A página de Simulação destina-se a experiências de ``e se\ldots'' Em vez de uma única previsão, o sistema executa centenas ou milhares de previsões com dados ligeiramente aleatorizados, avaliando a estabilidade e fiabilidade do modelo face a variações nos dados de entrada.
+
+\section{Configuração e Seleção do PTD}
+
+Os parâmetros de perfil, versão e modelo configuram-se tal como na página de Previsão. Após selecionar um \ptd, os valores codificados (\texttt{Distrito\_enc}, \texttt{Concelho\_enc}, \texttt{N\_Clientes}) exibem-se automaticamente, servindo como referência para a interpretação dos resultados.
+
+\section{Definição do Cenário Alvo}
+
+O utilizador escolhe um dos três cartões de cenário para definir o nível de risco que pretende testar. O cenário \textbf{Risco Baixo} verifica se o sistema classifica consistentemente a situação como segura. O cenário \textbf{Risco Médio} testa casos limite, onde a decisão do modelo pode oscilar. O cenário \textbf{Risco Alto} avalia se o sistema deteta situações perigosas com a sensibilidade adequada.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{05_sim_scenario.png}
+\caption{Seletor de cenário alvo com três níveis de risco: Baixo, Médio e Alto.}
+\label{fig:sim-scenario}
+\end{figure}
+
+\section{Parâmetros da Simulação}
+
+O número de \textbf{iterações} (100 a 100.000) controla o volume de testes aleatórios --- mais iterações conferem maior precisão estatística, mas aumentam o tempo de processamento. A \textbf{escala de ruído} (tipicamente a partir de 0,01) quantifica a magnitude da aleatoriedade injetada nos dados de entrada; valores mais elevados produzem maior variação e testam a robustez do modelo em condições extremas. A \textbf{semente} é um número inteiro que inicializa o gerador de números pseudoaleatórios, tornando os resultados perfeitamente reproduzíveis quando a mesma semente é reutilizada.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{06_sim_param.png}
+\caption{Painel de parâmetros da simulação: iterações, escala de ruído e semente aleatória.}
+\label{fig:sim-param}
+\end{figure}
+
+\section{Análise dos Resultados}
+
+Após executar o cenário, o painel de resultados apresenta várias métricas. O \textbf{medidor de taxa de deteção} indica a frequência com que o modelo identificou corretamente o cenário alvo escolhido. O \textbf{gráfico circular de distribuição} mostra a proporção de resultados Baixo, Médio e Alto ao longo de todas as iterações. A \textbf{probabilidade de sobrecarga} estima a chance de a rede efetivamente entrar em sobrecarga nas condições testadas.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{07_sim_results.png}
+\caption{Painel de resultados da simulação com medidor de deteção e distribuição de classes.}
+\label{fig:sim-results}
+\end{figure}
+
+As \textbf{estatísticas de resumo} (média, desvio padrão, mínimo e máximo) caracterizam a dispersão das probabilidades. O \textbf{detalhe de deteção} apresenta um gráfico de barras com a frequência de cada nível de risco detetado.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{08_sim_per_class.png}
+\caption{Detalhe de deteção por classe com probabilidades detetadas para cada nível de risco.}
+\label{fig:sim-per-class}
+\end{figure}
+
+A faixa de deteção interpreta-se da seguinte forma: verde (≥70\,\%) significa que o modelo deteta fiavelmente o cenário; laranja (30--70\,\%) indica incerteza; vermelho (<30\,\%) revela que o modelo tem dificuldade em identificar corretamente a situação.
+
+%------------------------------------------------------------------------------
+\chapter{Análise Regional}\label{ch:regional}
+%------------------------------------------------------------------------------
+
+A página de Análise Regional processa todos os transformadores de um distrito ou concelho em lote, sendo particularmente útil para planear implementações de carregadores em grande escala.
+
+\section{Configuração e Seleção da Região}
+
+O utilizador seleciona o perfil, a versão e um modelo de regressão. No seletor de região, escolhe-se um distrito (por exemplo, Lisboa ou Porto) e, opcionalmente, um concelho específico dentro desse distrito. Se o concelho for omitido, a análise abrange o distrito inteiro. O sistema indica quantos \ptd s foram encontrados na seleção, permitindo ao utilizador avaliar o volume de processamento antes de iniciar.
+
+\section{Configuração dos Carregadores}
+
+O utilizador seleciona um modelo de carregador (o que preenche automaticamente a potência unitária), define o número de carregadores por transformador e estabelece o fator de utilização. O sistema calcula imediatamente a carga total dos carregadores e a carga atribuída a cada \ptd{} individual.
+
+\section{Execução e Monitorização}
+
+O botão ``Analisar $N$ \ptd s'' inicia o processamento. Uma barra de progresso indica quantos transformadores já foram analisados. O sistema processa os \ptd s em lotes de 10 unidades para evitar sobrecarga do servidor e garantir uma experiência responsiva.
+
+\section{Painel de Resultados}
+
+O \textbf{resumo} apresenta o total de \ptd s analisados, a contagem de transformadores em cada nível de risco (Baixo, Médio, Alto), a carga prevista média e um gráfico circular da distribuição de risco.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{09_anal_sum.png}
+\caption{Resumo da análise regional com contagem de riscos e distribuição por classe.}
+\label{fig:anal-sum}
+\end{figure}
+
+O \textbf{mapa} exibe cada transformador como um ponto colorido: verde para risco baixo, laranja para risco médio e vermelho para risco alto. Clicar num ponto revela informação detalhada sobre o respetivo \ptd. O mapa ajusta automaticamente o zoom para englobar todos os resultados.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{10_anal_map.png}
+\caption{Mapa de resultados da análise regional com pontos coloridos por nível de risco.}
+\label{fig:anal-map}
+\end{figure}
+
+A \textbf{tabela detalhada} é ordenável e filtrável, com as seguintes colunas: código \ptd, distrito, concelho, carga prevista (\kw), potência instalada (\kva), carga total (destacada a vermelho quando excede a capacidade), margem de segurança (vermelho quando negativa), classificação de risco com código de cor, e número de carregadores suportados. Os botões ``Limpar Filtros'' e ``Exportar CSV'' permitem, respetivamente, repor os filtros e descarregar os dados para processamento no Excel ou Google Sheets.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{11_anal_results.png}
+\caption{Tabela detalhada de resultados regionais com ordenação, filtros e exportação CSV.}
+\label{fig:anal-results}
+\end{figure}
+
+%------------------------------------------------------------------------------
+\chapter{Recomendações Práticas}\label{ch:dicas}
+%------------------------------------------------------------------------------
+
+Para obter os melhores resultados da plataforma, sugere-se começar sempre pelos modelos marcados como Recomendado, dado que foram pré-testados para precisão. Para testes exploratórios, 100 a 500 iterações oferecem um bom compromisso entre velocidade e fiabilidade; para relatórios finais, recomenda-se 5000 ou mais.
+
+\begin{tipbox}
+Na Análise Regional, a margem de segurança merece atenção especial: valores negativos indicam sobrecarga iminente e devem ser evitados. A comparação entre os resultados de classificação e regressão é esclarecedora: a classificação fornece o nível de risco qualitativo, enquanto a regressão oferece os valores quantitativos exatos.
+\end{tipbox}
+
+Na Simulação, a reutilização da mesma semente permite comparar diferentes configurações em condições de aleatoriedade idêntica. Se um \ptd{} apresentar risco alto, a solução passa por reduzir o número de carregadores ou selecionar um transformador com maior potência instalada --- a segurança da rede é sempre a prioridade absoluta.
+
+\begin{warnbox}
+Se um \ptd{} apresentar \textbf{risco alto}, a solução passa por reduzir o número de carregadores ou selecionar um transformador com maior potência instalada. A \textbf{segurança da rede} é sempre a prioridade absoluta.
+\end{warnbox}
+
+%==============================================================================
+% ENGLISH PART
+%==============================================================================
+\part{English Documentation}\label{part:en}
+
+\begin{otherlanguage}{english}
+
+%------------------------------------------------------------------------------
+\chapter{Key Concepts}\label{ch:concepts}
+%------------------------------------------------------------------------------
+
+Before using the tool, familiarize yourself with the following terms. A \textbf{PTD} (Distribution Transformer Post) is a specific electrical grid transformer, identified by an alphanumeric code (e.g., \texttt{PTD-12345}) and associated with a concrete geographic location. The consumption \textbf{profile} is a preset that determines analysis aggressiveness: \texttt{leve} (light) for low-density residential areas, \texttt{regular} for mixed residential-commercial zones, and \texttt{pesado} (heavy) for industrial or high-density commercial areas.
+
+The \textbf{model} is the underlying prediction engine, with options including NeuralNet, Decision Tree, SVM, and others. Models marked \textbf{Recommended} have been pre-tested and usually deliver the best results. \textbf{Classification} translates risk into three levels: Low (safe), Medium (caution), and High (dangerous overload). \textbf{Regression}, in turn, provides a numeric prediction of required power, expressed in kilowatts (kW).
+
+The transformer's \textbf{installed power} (in kVA) represents the maximum limit the equipment was built to handle. \textbf{Charger power} (in kW) indicates the demand of each individual charging station. The \textbf{utilization factor}, a value between 0 and 1, quantifies the fraction of time chargers are actually in use --- for example, 0.7 corresponds to 70\,\% occupancy. The \textbf{total charger load} follows the expression
+\[
+\text{Total Load} = \text{No. Chargers} \times \text{Power/Charger} \times \text{Utilization Factor}.
+\]
+
+\begin{table}[H]
+\centering
+\caption{Risk levels and recommended actions}\label{tab:risks-en}
+\begin{tabular}{@{}llp{6cm}@{}}
+\toprule
+\textbf{Level} & \textbf{Color} & \textbf{Recommended Action} \\
+\midrule
+Low & Green & Proceed with confidence. Safe operating conditions. \\
+Medium & Orange & Monitor closely; consider reducing the number of chargers. \\
+High & Red & \textbf{Do not install.} Upgrade the transformer first. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%------------------------------------------------------------------------------
+\chapter{Load Prediction}\label{ch:prediction}
+%------------------------------------------------------------------------------
+
+The Prediction page is designed for analyzing a single transformer, assessing whether it can support electric vehicle chargers. The workflow divides into four stages: model configuration, location selection, task choice, and result interpretation.
+
+\section{Model Configuration}
+
+In the top section of the form, the user must select three essential parameters. The \textbf{profile} (\texttt{leve}, \texttt{regular}, or \texttt{pesado}) defines the analysis rigor. The \textbf{version} field may be left blank to use the latest model version, or filled with a specific identifier for comparative testing. The prediction \textbf{model} should be chosen from the available list, with preference given to those displaying the green ``Recommended'' tag.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{00_model_configs.png}
+\caption{Model configuration panel with profile, version, and model selector.}
+\label{fig:model-configs-en}
+\end{figure}
+
+\section{Location Selection}
+
+The interactive map and hierarchical selector (district, municipality, PTD) allow locating the desired transformer. When a PTD is selected, the system automatically fills in all technical details --- installed power, number of lights, LED ratio, among others. The encoded values \texttt{Distrito\_enc} and \texttt{Concelho\_enc} also update automatically, eliminating manual entry.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{01_map_select.png}
+\caption{Interactive map with hierarchical district, municipality, and PTD selector.}
+\label{fig:map-select-en}
+\end{figure}
+
+\section{Available Tasks}
+
+The Prediction page is organized into two tabs. The \textbf{Classification} tab answers the question ``Will this transformer overload?'' The system predicts risk as Low, Medium, or High, displaying after submission a color-coded tag (green, orange, or red), a confidence gauge, and raw scores for each risk level.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{02_class_results.png}
+\caption{Classification results with risk tag, confidence gauge, and raw scores.}
+\label{fig:class-results-en}
+\end{figure}
+
+The \textbf{Regression} tab answers the question ``How much power will be needed?'' The system predicts exact demand in kW. In this tab, the user can also configure a charger simulation: select a charger model (which auto-fills the power), define the number of chargers to install, and set the expected utilization factor.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{03_charger_sim.png}
+\caption{Charger simulation configuration with model, power, and utilization factor.}
+\label{fig:charger-sim-en}
+\end{figure}
+
+Results include the predicted value in kW, total charger load, supported charger count, and a grid security chart visualizing the available margin as chargers are added.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{04_regression_sim.png}
+\caption{Regression results with predicted value, total load, and grid security chart.}
+\label{fig:regression-results-en}
+\end{figure}
+
+\section{Interpreting Results}
+
+Results appear automatically below the form, with smooth scrolling to the corresponding section. Each prediction made is recorded in the session history, allowing later review. The color-coded risk tag permits immediate assessment: green indicates safety, orange recommends caution, and red signals imminent overload danger.
+
+%------------------------------------------------------------------------------
+\chapter{Scenario Simulation}\label{ch:simulation}
+%------------------------------------------------------------------------------
+
+The Simulation page is designed for ``what-if'' experiments. Instead of a single prediction, the system runs hundreds or thousands of predictions with slightly randomized data, evaluating the model's stability and reliability against input variations.
+
+\section{Configuration and PTD Selection}
+
+Profile, version, and model parameters are configured just like on the Prediction page. After selecting a PTD, the encoded values (\texttt{Distrito\_enc}, \texttt{Concelho\_enc}, \texttt{N\_Clientes}) display automatically, serving as reference for result interpretation.
+
+\section{Setting the Target Scenario}
+
+The user chooses one of three scenario cards to set the risk level to test. The \textbf{Low Risk} scenario verifies whether the system consistently classifies the situation as safe. The \textbf{Medium Risk} scenario tests borderline cases where the model's decision may oscillate. The \textbf{High Risk} scenario assesses whether the system detects dangerous situations with adequate sensitivity.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{05_sim_scenario.png}
+\caption{Target scenario selector with three risk levels: Low, Medium, and High.}
+\label{fig:sim-scenario-en}
+\end{figure}
+
+\section{Simulation Parameters}
+
+The number of \textbf{iterations} (100 to 100,000) controls the volume of random tests --- more iterations provide greater statistical precision but increase processing time. The \textbf{noise scale} (typically starting at 0.01) quantifies the magnitude of randomness injected into input data; higher values produce greater variation and test model robustness under extreme conditions. The \textbf{seed} is an integer that initializes the pseudo-random number generator, making results perfectly reproducible when the same seed is reused.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{06_sim_param.png}
+\caption{Simulation parameters panel: iterations, noise scale, and random seed.}
+\label{fig:sim-param-en}
+\end{figure}
+
+\section{Analyzing Results}
+
+After running the scenario, the results panel presents several metrics. The \textbf{detection rate gauge} indicates how frequently the model correctly identified the chosen target scenario. The \textbf{distribution pie chart} shows the proportion of Low, Medium, and High results across all iterations. The \textbf{overload probability} estimates the chance the grid will actually overload under tested conditions.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{07_sim_results.png}
+\caption{Simulation results panel with detection gauge and class distribution.}
+\label{fig:sim-results-en}
+\end{figure}
+
+\textbf{Summary statistics} (mean, standard deviation, minimum and maximum) characterize the spread of probabilities. The \textbf{detection breakdown} presents a bar chart with the frequency of each detected risk level.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{08_sim_per_class.png}
+\caption{Per-class detection breakdown with detected probabilities for each risk level.}
+\label{fig:sim-per-class-en}
+\end{figure}
+
+The detection banner is interpreted as follows: green (≥70\,\%) means the model reliably detects the scenario; orange (30--70\,\%) indicates uncertainty; red (<30\,\%) reveals the model struggles to correctly identify the situation.
+
+%------------------------------------------------------------------------------
+\chapter{Regional Analysis}\label{ch:regional-en}
+%------------------------------------------------------------------------------
+
+The Regional Analysis page processes all transformers in a district or municipality in batch, particularly useful for planning large-scale charger deployments.
+
+\section{Configuration and Region Selection}
+
+The user selects the profile, version, and a regression model. In the region selector, a district is chosen (e.g., Lisbon or Porto) and optionally a specific municipality within that district. If the municipality is omitted, the analysis covers the entire district. The system indicates how many PTDs were found in the selection, allowing the user to assess processing volume before starting.
+
+\section{Charger Configuration}
+
+The user selects a charger model (which auto-fills the unit power), defines the number of chargers per transformer, and sets the utilization factor. The system immediately calculates the total charger load and the load assigned to each individual PTD.
+
+\section{Execution and Monitoring}
+
+The ``Analyze $N$ PTDs'' button initiates processing. A progress bar indicates how many transformers have been analyzed. The system processes PTDs in batches of 10 units to avoid server overload and ensure a responsive experience.
+
+\section{Results Panel}
+
+The \textbf{summary} presents the total PTDs analyzed, the count of transformers at each risk level (Low, Medium, High), the average predicted load, and a pie chart of risk distribution.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{09_anal_sum.png}
+\caption{Regional analysis summary with risk counts and per-class distribution.}
+\label{fig:anal-sum-en}
+\end{figure}
+
+The \textbf{map} displays each transformer as a colored dot: green for low risk, orange for medium risk, and red for high risk. Clicking a point reveals detailed information about the respective PTD. The map automatically adjusts zoom to encompass all results.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{10_anal_map.png}
+\caption{Regional analysis results map with color-coded risk level dots.}
+\label{fig:anal-map-en}
+\end{figure}
+
+The \textbf{detailed table} is sortable and filterable, with the following columns: PTD code, district, municipality, predicted load (kW), installed power (kVA), total load (highlighted in red when exceeding capacity), safety margin (red when negative), risk classification with color code, and supported charger count. The ``Clear Filters'' and ``Export CSV'' buttons allow resetting filters and downloading data for processing in Excel or Google Sheets, respectively.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{11_anal_results.png}
+\caption{Detailed regional results table with sorting, filters, and CSV export.}
+\label{fig:anal-results-en}
+\end{figure}
+
+%------------------------------------------------------------------------------
+\chapter{Practical Recommendations}\label{ch:tips}
+%------------------------------------------------------------------------------
+
+To obtain the best results from the platform, always start with models marked as Recommended, as they have been pre-tested for accuracy. For exploratory testing, 100 to 500 iterations offer a good balance between speed and reliability; for final reports, 5000 or more are recommended.
+
+\begin{tipbox}
+In Regional Analysis, the safety margin deserves special attention: negative values indicate imminent overload and must be avoided. Comparing classification and regression results is enlightening: classification provides the qualitative risk level, while regression offers exact quantitative values.
+\end{tipbox}
+
+In Simulation, reusing the same seed allows comparing different configurations under identical randomness conditions. If a PTD shows high risk, the solution is to reduce the number of chargers or select a transformer with higher installed power --- grid safety is always the absolute priority.
+
+\begin{warnbox}
+If a PTD shows \textbf{high risk}, the solution is to reduce the number of chargers or select a transformer with higher installed power. \textbf{Grid safety} is always the absolute priority.
+\end{warnbox}
+
+\end{otherlanguage}
+
+%==============================================================================
+% BACK MATTER
+%==============================================================================
+\backmatter
+
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{Índice Remissivo}
+\printindex
+
+\end{document}

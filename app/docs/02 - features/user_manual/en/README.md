@@ -1,9 +1,9 @@
 
-# User Manual: EV Grid Load Analysis Platform
+# User Manual
 
 ## What This Tool Does
 
-This platform helps you analyze whether electrical grid transformers (called **PTDs**) can handle the addition of electric vehicle chargers. Think of it as a "stress test" for the electrical grid — it tells you **how risky** it would be to install EV chargers in a specific area, and **how many chargers** the grid can safely support.
+This platform helps you analyze whether electrical grid transformers (called **PTDs**) can handle the addition of electric vehicle chargers. Think of it as a "stress test" for the electrical grid, it tells you **how risky** it would be to install EV chargers in a specific area, and **how many chargers** the grid can safely support.
 
 The platform has **three main tools**, each with its own page:
 
@@ -25,7 +25,7 @@ Before using the tool, here are a few terms you'll see:
 | **Profile** | A preset setting: `leve` (light), `regular` (medium), or `pesado` (heavy). This tells the system how aggressively to analyze. |
 | **Model** | The "brain" that makes predictions. Options include NeuralNet, Decision Tree, SVM, etc. The ones marked **Recommended** usually work best. |
 | **Classification** | The risk level: **Low** (safe), **Medium** (caution), or **High** (dangerous overload). |
-| **Regression** | A number prediction — specifically, how much power (in kW) the grid will need to handle. |
+| **Regression** | A number prediction, specifically, how much power (in kW) the grid will need to handle. |
 | **Installed Power** | The maximum power the transformer was built to handle (in kVA). |
 | **Charger Power** | How much power one EV charger uses (in kW). |
 | **Utilization Factor** | How much of the time chargers are actually being used (0 to 1). For example, 0.7 means chargers are in use 70% of the time. |
@@ -44,10 +44,14 @@ Use this when you want to analyze **one specific transformer** and see if it can
 - **Version** (optional): Leave blank unless you have a specific model version to test.
 - **Model**: Pick a prediction model. The ones with a green **Recommended** tag usually give the best results.
 
+![model configs](../../img/00_model_configs.png)
+
 #### 2. Select a Location (PTD Selection)
 - Use the **map and selector** to find your transformer.
 - When you select a PTD, the system automatically fills in all the technical details about that transformer (installed power, number of lights, etc.).
 - The **Distrito_enc** and **Concelho_enc** values update automatically based on your selection.
+
+![location configs](../../img/01_map_select.png)
 
 #### 3. Choose Your Task (Tabs)
 
@@ -58,16 +62,23 @@ Use this when you want to analyze **one specific transformer** and see if it can
   - A **confidence gauge** showing how sure the model is
   - **Raw scores** showing the probability for each risk level
 
+![class results](../../img/02_class_results.png)
+
 **Tab B: Regression** — "How much power will be needed?"
 - The system predicts the **exact power demand** in kW.
 - You can also configure **charger simulation**:
   - Pick a **charger model** from the dropdown (this auto-fills the power)
   - Set **how many chargers** you want to install
   - Set the **utilization factor** (how busy the chargers will be)
+
+![charger sim](../../img/03_charger_sim.png)
+
 - You'll see:
   - The **predicted power value** in kW
   - **Total charger load** and **supported chargers count**
   - A **Grid Security Chart** showing whether your plan is safe
+
+![regression results](../../img/04_regression_sim.png)
 
 #### 4. Review Results
 Results appear below the form. The system automatically scrolls to them. Each prediction is saved to your history.
@@ -88,14 +99,18 @@ Use this to run **"what-if" experiments**. Instead of one prediction, the system
 
 #### 3. Choose a Scenario
 - Click one of three cards to set the **target risk level** you want to test:
-  - 🟢 **Low Risk** — Test if the system consistently says "safe"
-  - 🟠 **Medium Risk** — Test borderline cases
-  - 🔴 **High Risk** — Test if the system catches dangerous situations
+  - **Low Risk**: Test if the system consistently says "safe"
+  - **Medium Risk**: Test borderline cases
+  - **High Risk**: Test if the system catches dangerous situations
+
+![sim targets](../../img/05_sim_scenario.png)
 
 #### 4. Set Parameters
 - **Iterations**: How many random tests to run (100 to 100,000). More = more accurate but slower.
 - **Noise Scale**: How much randomness to add (0.01 to higher values). Higher = more variation in test data.
 - **Seed**: A number that makes the randomness repeatable. Use the same seed to get the same "random" results.
+
+![sim seed](../../img/06_sim_param.png)
 
 #### 5. Review Results
 After clicking **Run Scenario**, you'll see:
@@ -108,10 +123,13 @@ After clicking **Run Scenario**, you'll see:
 | **Summary Statistics** | Mean, standard deviation, min/max probabilities |
 | **Detection Breakdown** | A bar chart showing how often each risk level was detected |
 
+![sim targets](../../img/07_sim_results.png)
+![sim targets](../../img/08_sim_per_class.png)
+
 **Reading the Detection Banner:**
-- 🟢 **Green** (≥70%): The model reliably detects this scenario
-- 🟠 **Orange** (30-70%): The model is uncertain
-- 🔴 **Red** (<30%): The model struggles to detect this scenario
+- **Green** (≥70%): The model reliably detects this scenario
+- **Orange** (30-70%): The model is uncertain
+- **Red** (<30%): The model struggles to detect this scenario
 
 ---
 
@@ -150,13 +168,17 @@ Use this to analyze **every transformer in an entire district or municipality** 
 - **Average predicted load** across all transformers
 - A **pie chart** showing the risk distribution
 
+![sim targets](../../img/09_anal_sum.png)
+
 **Map:**
 - Each transformer appears as a colored dot on the map:
-  - 🟢 Green = Low risk
-  - 🟠 Orange = Medium risk
-  - 🔴 Red = High risk
+  - Green = Low risk
+  - Orange = Medium risk
+  - Red = High risk
 - **Click any dot** to see detailed info about that transformer
 - The map automatically zooms to fit all results
+
+![sim targets](../../img/10_anal_map.png)
 
 **Detailed Results Table:**
 - Sortable, filterable table with all transformers
@@ -170,6 +192,8 @@ Use this to analyze **every transformer in an entire district or municipality** 
   - **Risk Classification** (color-coded tag)
   - **Supported Chargers** (how many chargers this transformer can actually handle)
 - Use **Clear Filters** to reset, or **Export CSV** to download the data
+
+![sim targets](../../img/11_anal_results.png)
 
 ---
 
@@ -190,9 +214,9 @@ Use this to analyze **every transformer in an entire district or municipality** 
 
 | Level | Color | Meaning | Action |
 |-------|-------|---------|--------|
-| **Low** | 🟢 Green | Safe to install chargers | Proceed with confidence |
-| **Medium** | 🟠 Orange | Borderline — may overload under heavy use | Monitor closely; consider fewer chargers |
-| **High** | 🔴 Red | Dangerous — likely to overload | Do not install; upgrade transformer first |
+| **Low** | Green | Safe to install chargers | Proceed with confidence |
+| **Medium** | Orange | May overload under heavy use | Monitor closely; consider fewer chargers |
+| **High** | Red | Dangerous and likely to overload | Do not install; upgrade transformer first |
 
 ---
 
